@@ -1,1 +1,1 @@
-# react-game
+https://levendor.github.io/react-game/
