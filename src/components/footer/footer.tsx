@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from "../../assets/rs_school_js.svg";
 import './footer.scss';
 
-export default class Footer extends Component{
+export default class Footer extends Component {
   render() {
     return (
       <footer className="footer border">

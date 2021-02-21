@@ -1,14 +1,14 @@
 import Footer from '../footer';
+import Header from '../header';
+import ScoreLine from '../score-line';
 
-import logo from '../../assets/rs_school_js.svg';
-import './App.css';
+import './App.scss';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
+      <Header />
+      <ScoreLine />
       <Footer />
     </div>
   );

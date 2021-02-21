@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import './components/footer/footer.scss';
+
+import './index.scss';
+
 import App from './components/app';
 
 ReactDOM.render(
