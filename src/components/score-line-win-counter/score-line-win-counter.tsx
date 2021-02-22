@@ -10,11 +10,15 @@ interface Props {
 
 export default class WinCounter extends Component<Props> {
   render() {
-    const [ star1, star2 ] = this.props.faIcon;
+    const arr = this.props.faIcon;
+    // const [ star1, star2 ] = arr;
     return (
       <div className="win-counter">
-        <FontAwesomeIcon icon={star1} size="2x" />
-        <FontAwesomeIcon icon={star2} size="2x" />
+        {
+          arr.map((star: IconProp, index) => {
+            return <FontAwesomeIcon icon={star} size="2x" key={index} />
+          })
+        }
       </div>
     );
   }

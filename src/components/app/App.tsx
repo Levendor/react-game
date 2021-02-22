@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="app">
       <Header />
-      <ScoreLine />
+      <ScoreLine bestOf={3} score={[1, 2]} players={['player 1', 'AI-1']}/>
       <Footer />
     </div>
   );
