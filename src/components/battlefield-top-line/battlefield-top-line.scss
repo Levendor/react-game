@@ -1,0 +1,7 @@
+.top-line {
+  display: grid;
+  grid-template-columns: repeat(11, 4rem);
+  grid-template-rows: 4rem;
+  grid-area: topLine;
+  column-gap: 0.1rem;
+}
