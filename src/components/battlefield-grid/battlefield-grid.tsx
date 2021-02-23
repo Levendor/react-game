@@ -3,6 +3,7 @@ import './battlefield-grid.scss';
 
 import { fieldTemplate } from '../../model/fieldTemplate';
 import Line from '../battlefield-line';
+import Cell from '../battlefield-cell';
 
 interface Props {
   onCellClick: Function;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default class Grid extends Component<Props> {
+
   render() {
     const { side } = this.props;
     return (
@@ -20,12 +22,11 @@ export default class Grid extends Component<Props> {
           fieldTemplate.map((row, i) => {
             return (
               row.map((cell, j) => {
-              return <div className="cell"
-                          key={Math.floor(Math.random()*10000)}
-                          onClick={() => this.props.onCellClick(side, [i, j])}
-                          style={{gridArea: `cell-${i}${j}`}}>
-                            {cell}
-                     </div>
+                return <Cell value={cell}
+                             side={side}
+                             coordinates={[i, j]}
+                             onCellClick={console.log}
+                             key={Math.floor(Math.random()*10000)} />
               })
             )
           })

@@ -10,9 +10,9 @@ export default class Battlefield extends Component<Props> {
   render() {
     return (
       <div className="battlefield">
-        <Grid onCellClick={console.log} side="Your side" />
+        <Grid onCellClick={console.log} side="Your fleet" />
         <div className="gap"></div>
-        <Grid onCellClick={console.log} side="Enemy side" />
+        <Grid onCellClick={console.log} side="Enemy fleet" />
       </div>
     );
   }
