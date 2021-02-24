@@ -2,16 +2,31 @@ import { FIELD_SIZE, SHIPS } from '../constants';
 import { fieldTemplate } from './fieldTemplate';
 import Ship from './ship';
 
-export function createShips() {
-  const ships = SHIPS.map((ship: string) => {
-    const position = Math.round(Math.random()) ? 'vertical' : 'horizontal';
-    const randomCoordinate1 = Math.floor(Math.random() * FIELD_SIZE);
-    const randomCoordinate2 = Math.floor(Math.random() * FIELD_SIZE);
-    const entryPoints = [randomCoordinate1, randomCoordinate2];
-    return new Ship(ship, position, entryPoints);
+export function createShips(): Ship[] {
+  const ships: Ship[] = [];
+  SHIPS.forEach((ship: string) => {
+    let newShip: Ship;
+    do {
+      const position = Math.round(Math.random()) ? 'vertical' : 'horizontal';
+      const entryPoints = [
+        Math.floor(Math.random() * FIELD_SIZE),
+        Math.floor(Math.random() * FIELD_SIZE),
+      ];
+      newShip = new Ship(ship, position, entryPoints);
+    } while (isPlacedWrong(newShip.coordinates, newShip.stringCoordinates, ships));
+    ships.push(newShip);
   })
-
   return ships;
+}
+
+export function isPlacedWrong(coordinates: Array<number[]>, stringCoordinates: string[], shipArray: Ship[]) {
+  const isShipsIntersected: boolean = stringCoordinates
+    .some((point) => shipArray.some((ship: Ship) => ship.shipArea.includes(point)));
+
+  const isShipOutsideField: boolean = coordinates
+    .some((point: number[]) => point.some((coordinate: number) => coordinate >= FIELD_SIZE));
+
+  return isShipsIntersected || isShipOutsideField;
 }
 
 export function placeShips(shipsArray: Ship[]) {
