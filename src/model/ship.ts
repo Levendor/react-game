@@ -1,15 +1,19 @@
 export default class Ship {
+  type: string;
   length: number;
+  position: string;
   coordinates: Array<number[]>;
 
-  constructor(type: string, entryPoints: number[], position: string) {
+  constructor(type: string, position: string, entryPoints: number[]) {
+    this.type = type;
     this.length = this.getShipSize(type);
+    this.position = position;
     this.coordinates = new Array(this.length)
       .fill(0)
       .map((item, index) => {
-        if (position === 'vertical') {
+        if (this.position === 'vertical') {
           return [entryPoints[0] + index, entryPoints[1]]
-        } else if (position === 'horizontal') {
+        } else if (this.position === 'horizontal') {
           return [entryPoints[0], entryPoints[1] + index];
         } else return [...entryPoints];
     })

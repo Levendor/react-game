@@ -29,7 +29,7 @@ export default class Cell extends Component<Props> {
     const { side, value, coordinates } = this.props;
     return (
       <div className="cell"
-           onClick={() => this.props.onCellClick(side, coordinates)}
+           onClick={() => this.props.onCellClick(side, `[${coordinates[0]}, ${coordinates[1]}]`, value)}
            style={{gridArea: `cell-${coordinates.join('')}`}}>
             {this.cellContent(value)}
       </div>

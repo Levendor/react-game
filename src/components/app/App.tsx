@@ -3,6 +3,8 @@ import Footer from '../footer';
 import Header from '../header';
 import ScoreLine from '../score-line';
 
+import '../../model/generateField';
+
 import './App.scss';
 
 function App() {
