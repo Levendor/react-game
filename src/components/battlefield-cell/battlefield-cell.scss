@@ -1,14 +1,20 @@
 .cell {
+  display: flex;
   width: 4rem;
   height: 4rem;
   background-color: #fff;
-  text-align: center;
-  line-height: 4rem;
+  justify-content: center;
+  align-items: center;
+  
 
   &:hover {
     background-color: #ddd;
     cursor: pointer;
   }
+}
+
+.grid-cell {
+  font-size: 1rem;
 }
 
 .disabled {
