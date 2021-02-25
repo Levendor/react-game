@@ -3,3 +3,21 @@
   min-width: 500px;
   max-width: 1024px;
 }
+
+.battlefield {
+  display: grid;
+  grid-template-rows: 45rem;
+  grid-template-columns: 45rem auto 45rem;
+  padding: 0.5rem 2rem;
+
+  .gap {
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+
+  @media screen and (max-width: 1000px) {
+    grid-template-rows: 45rem auto 45rem;
+    grid-template-columns: 45rem;
+    justify-content: center;
+  }
+}

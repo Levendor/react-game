@@ -16,7 +16,11 @@ export default class App extends Component {
       <div className="app">
         <Header />
         <ScoreLine bestOf={3} score={[1, 2]} players={[name, name]}/>
-        <Battlefield />
+        <div className="battlefield">
+          <Battlefield onCellClick={console.log} side="friend" />
+          <div className="gap"></div>
+          <Battlefield onCellClick={console.log} side="foe" />
+        </div>
         <Footer />
       </div>
     );
