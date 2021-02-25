@@ -4,6 +4,7 @@ import Ship from './Ship';
 export default class Field {
   ships: Ship[];
   occupiedCells: Array<number[]>;
+  stringOccupiedCells: string[];
   field: Array<number[]>;
   shots: string[];
   hit: string[];
@@ -11,6 +12,7 @@ export default class Field {
   constructor(loadedField?: Field) {
     this.ships = this.createShips();
     this.occupiedCells = this.placeShips(this.ships);
+    this.stringOccupiedCells = this.occupiedCells.map((cell) => cell.join(''))
     this.field = this.generateField(this.occupiedCells);
     this.shots = [];
     this.hit = [];

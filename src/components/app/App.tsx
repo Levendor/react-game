@@ -13,9 +13,9 @@ interface Props {
 
 interface State {
   user1Name: string;
-  friendlyField: Array<number[]>;
+  player1Field: Array<number[]>;
   user2Name: string;
-  foeField: Array<number[]>;
+  player2Field: Array<number[]>;
   disabled: boolean;
 }
 
@@ -27,9 +27,9 @@ export default class App extends Component<Props, State> {
     super(props);
     this.state = {
       user1Name: '123456789012',
-      friendlyField: player1Field.field,
+      player1Field: player1Field.field,
       user2Name: '',
-      foeField: player1Field.field,
+      player2Field: player1Field.field,
       disabled: false,
     }
   }
@@ -56,29 +56,46 @@ export default class App extends Component<Props, State> {
     player2Field = new Field();
 
     this.setState({
-      friendlyField: player1Field.field,
-      foeField: player1Field.field,
+      disabled: false,
+      player1Field: player1Field.field,
+      player2Field: player1Field.field,
     });
+  }
+
+  autoGame = (index: number) => {
+    const fields = [player1Field, player2Field];
+    if (fields.some((field) => {
+      return field.stringOccupiedCells.every((cell) => {
+        return fields[index].shots.some((shot) => {
+          return shot === cell;
+        })
+      })
+    })) return;
+    
+    this.setState({ disabled: true })
+    
+    if (index) { 
+      this.setState({ 
+        player2Field: fields[index].shot(aiming(fields[index])),
+      });
+    } else { 
+      this.setState({ 
+        player1Field: fields[index].shot(aiming(fields[index])),
+      });
+    }
+
+    setTimeout(() => this.autoGame((index + 1) % 2), 50);
   }
 
   blowsExchange = (coordinates: number[]) => {
     this.setState({
-      foeField: player2Field.shot(coordinates),
+      player2Field: player2Field.shot(coordinates),
       disabled: true,
     });
 
-    const aiming = player1Field.aiming;
-    let enemyStrikePoint: number[]; 
-    do {
-      enemyStrikePoint= [
-        Math.floor(Math.random() * 10),
-        Math.floor(Math.random() * 10),
-      ];
-    } while (aiming(enemyStrikePoint));
-
     setTimeout(() => {
       this.setState({ 
-        friendlyField: player1Field.shot(enemyStrikePoint),
+        player1Field: player1Field.shot(aiming(player1Field)),
         disabled: false,
       });
     }, 500);
@@ -93,20 +110,31 @@ export default class App extends Component<Props, State> {
             this.newGame,
             console.log,
             console.log,
-            console.log,
+            () => this.autoGame(0),
             console.log,
           ]} />
         <ScoreLine bestOf={3} score={[1, 2]} players={[user1Name, user2Name]}/>
         <div className={containerClass}>
           <Battlefield side="friend"
-                       field={this.state.friendlyField} />
+                       field={this.state.player1Field} />
           <div className="gap"></div>
           <Battlefield side="foe"
-                       field={this.state.foeField}
+                       field={this.state.player2Field}
                        onCellClick={this.blowsExchange} />
         </div>
         <Footer />
       </div>
     );
   }
+}
+
+const aiming = (field: Field) => {
+  let point: number[]; 
+  do {
+    point = [
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+    ];
+  } while (field.aiming(point));
+  return point;
 }
