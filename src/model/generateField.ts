@@ -1,4 +1,4 @@
-import { FIELD_SIZE, SHIPS } from '../constants';
+import { FIELD_SIZE, SHIPS } from './constants';
 import { fieldTemplate } from './fieldTemplate';
 import Ship from './ship';
 

@@ -1,4 +1,4 @@
-import { SHIP_AREA_WIDTH } from '../constants';
+import { SHIP_AREA_WIDTH } from './constants';
 
 export default class Ship {
   type: string;
