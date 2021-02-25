@@ -1,39 +1,32 @@
 import React, { Component } from 'react';
-import { faChartLine, faRobot, faSync, faTools, faUserFriends } from '@fortawesome/free-solid-svg-icons'
+import { v4 } from 'uuid';
+import { HEADER_BUTTONS_TITLES } from '../../model/constants';
+import SYMBOLS from '../../model/symbols';
 import HeaderButton from '../header-button';
 import './header.scss';
 
-export default class Header extends Component {
+interface Props {
+  callbacks: Function[];
+}
+
+export default class Header extends Component<Props> {
   render() {
+    const { callbacks } = this.props;
+    const symbols = SYMBOLS.HEADER_BUTTONS_SYMBOLS;
+    const titles = HEADER_BUTTONS_TITLES;
     return (
       <header className="header border">
         <span className="header_title">Морской бой</span>
         <nav className="header_navbar">
-          <HeaderButton 
-            title="New Game"
-            onButtonClick={ () => console.log('New game') }
-            faIcon={faSync}
-          />
-          <HeaderButton 
-            title="Statistics"
-            onButtonClick={ () => console.log('Statistics') }
-            faIcon={faChartLine}
-          />
-          <HeaderButton 
-            title="Settings"
-            onButtonClick={ () => console.log('Settings') }
-            faIcon={faTools}
-          />
-          <HeaderButton 
-            title="Autoplay"
-            onButtonClick={ () => console.log('Autoplay') }
-            faIcon={faRobot}
-          />
-          <HeaderButton 
-            title="Change User"
-            onButtonClick={ () => console.log('Change User') }
-            faIcon={faUserFriends}
-          />
+          {
+            titles.map((title, index) => {
+              return <HeaderButton title={title}
+                                   onButtonClick={() => callbacks[index](title)}
+                                   faIcon={symbols[index]}
+                                   key={v4()}
+            />
+            })
+          }
         </nav>
       </header>
     );

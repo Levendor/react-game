@@ -5,7 +5,7 @@
   background-color: #fff;
   justify-content: center;
   align-items: center;
-  
+  font-size: 3rem;
 
   &:hover {
     background-color: #ddd;
@@ -19,4 +19,12 @@
 
 .disabled {
   pointer-events: none;
+}
+
+.top-line-cell + .top-line-cell {
+  border-bottom: 1px solid black;
+}
+
+.left-line-cell {
+  border-right: 1px solid black;
 }

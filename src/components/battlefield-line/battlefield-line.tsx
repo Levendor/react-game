@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { v4 } from 'uuid';
 import './battlefield-line.scss';
 
-import { leftLine, topLine } from '../../model/fieldTemplate';
+import { LEFT_LINE_TEMPLATE, TOP_LINE_TEMPLATE } from '../../model/constants';
 
 interface Props {
   position: string;
@@ -12,8 +12,8 @@ export default class Line extends Component<Props> {
   render() {
     const { position } = this.props;
     const line = position === 'top'
-      ? topLine
-      : leftLine;
+      ? TOP_LINE_TEMPLATE
+      : LEFT_LINE_TEMPLATE;
 
     return (
       <div className={`${position}-line`}>

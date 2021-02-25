@@ -6,7 +6,8 @@ export default class Ship {
   position: string;
   coordinates: Array<number[]>;
   stringCoordinates: string[];
-  shipArea: string[];
+  shipArea: Array<number[]>;
+  stringShipArea: string[];
 
   constructor(type: string, position: string, entryPoints: number[]) {
     this.type = type;
@@ -15,6 +16,7 @@ export default class Ship {
     this.coordinates = this.getShipCoordinates(position, entryPoints);
     this.stringCoordinates = this.coordinates.map((point => point.join('')));
     this.shipArea = this.getShipArea(position, entryPoints);
+    this.stringShipArea = this.shipArea.map((point => point.join('')));
   }
 
   isVertical(position: string) {
@@ -55,13 +57,13 @@ export default class Ship {
     if (this.isVertical(position)) {
       for (let i = top; i < top + this.length + 2; i++) {
         for (let j = left; j < left + SHIP_AREA_WIDTH; j++) {
-          area.push(`${i}${j}`);
+          area.push([i, j]);
         }
       }
     } else {
       for (let i = top; i < top + SHIP_AREA_WIDTH; i++) {
         for (let j = left; j < left + this.length + 2; j++) {
-          area.push(`${i}${j}`);
+          area.push([i, j]);
         }
       }
     }
