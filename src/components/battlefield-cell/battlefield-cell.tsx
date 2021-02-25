@@ -11,10 +11,12 @@ interface Props {
 export default class Cell extends Component<Props> {
   
   cellContent(cellValue: number) {
+    const { side } = this.props;
     switch(cellValue) {
       case 0:
         return '';
       case 1:
+        if (side === 'foe') return '';
         return 'O';
       case 2:
         return 'X';
@@ -28,8 +30,8 @@ export default class Cell extends Component<Props> {
   render() {
     const { side, value, coordinates } = this.props;
     return (
-      <div className="cell"
-           onClick={() => this.props.onCellClick(side, `[${coordinates[0]}, ${coordinates[1]}]`, value)}
+      <div className={side ==='foe' ? "cell" : "cell disabled"}
+           onClick={() => this.props.onCellClick(coordinates)}
            style={{gridArea: `cell-${coordinates.join('')}`}}>
             {this.cellContent(value)}
       </div>

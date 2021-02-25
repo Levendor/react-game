@@ -1,0 +1,16 @@
+.cell {
+  width: 4rem;
+  height: 4rem;
+  background-color: #fff;
+  text-align: center;
+  line-height: 4rem;
+
+  &:hover {
+    background-color: #ddd;
+    cursor: pointer;
+  }
+}
+
+.disabled {
+  pointer-events: none;
+}

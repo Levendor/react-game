@@ -17,29 +17,4 @@
   row-gap: 0.1rem;
   column-gap: 0.1rem;
   background-color: black;
-
-  .cell {
-    width: 4rem;
-    height: 4rem;
-    background-color: #fff;
-    text-align: center;
-    line-height: 4rem;
-
-    &:hover {
-      background-color: #ddd;
-      cursor: pointer;
-    }
-  }
-
-  .disabled {
-    pointer-events: none;
-  }
-
-  .top-line-cell + .top-line-cell {
-    border-bottom: 1px solid black;
-  }
-
-  .left-line-cell {
-    border-right: 1px solid black;
-  }
 }

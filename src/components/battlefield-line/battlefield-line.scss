@@ -15,3 +15,11 @@
   grid-area: leftLine;
   row-gap: 0.1rem;
 }
+
+.top-line-cell + .top-line-cell {
+  border-bottom: 1px solid black;
+}
+
+.left-line-cell {
+  border-right: 1px solid black;
+}

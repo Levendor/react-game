@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { v4 } from 'uuid';
 import './battlefield-grid.scss';
 
-import { fieldTemplate } from '../../model/fieldTemplate';
 import makeField from '../../model/generateField';
 import Line from '../battlefield-line';
 import Cell from '../battlefield-cell';
@@ -23,8 +22,31 @@ export default class Grid extends Component<Props, State> {
     super(props);
     this.state = {
       side: this.props.side,
-      field: makeField(),
+      field: [],
     }
+  }
+
+  componentDidMount() {
+    this.setState({ field: makeField() })
+  }
+
+  shot = (coordinates: number[]) => {
+    const point = coordinates;
+    const newField = this.state.field.map((row, rowIndex) => {
+      if (rowIndex === point[0]) {
+        return row.map((cell, cellIndex) => {
+          if (cellIndex === point[1]) {
+            if (cell === 0) return 3;
+            else if (cell === 1) return 2;
+            return cell
+          }
+          return cell;
+        })
+      }
+      return row;
+    })
+
+    this.setState({ field: newField });
   }
 
   render() {
@@ -39,7 +61,7 @@ export default class Grid extends Component<Props, State> {
                 return <Cell value={cell}
                              side={this.state.side}
                              coordinates={[i, j]}
-                             onCellClick={console.log}
+                             onCellClick={this.shot}
                              key={v4()} />
               })
             )

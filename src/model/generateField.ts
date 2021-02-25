@@ -13,13 +13,13 @@ export function createShips(): Ship[] {
         Math.floor(Math.random() * FIELD_SIZE),
       ];
       newShip = new Ship(ship, position, entryPoints);
-    } while (isPlacedWrong(newShip.coordinates, newShip.stringCoordinates, ships));
+    } while (isShipPlacedWrong(newShip.coordinates, newShip.stringCoordinates, ships));
     ships.push(newShip);
   })
   return ships;
 }
 
-export function isPlacedWrong(coordinates: Array<number[]>, stringCoordinates: string[], shipArray: Ship[]) {
+export function isShipPlacedWrong(coordinates: Array<number[]>, stringCoordinates: string[], shipArray: Ship[]) {
   const isShipsIntersected: boolean = stringCoordinates
     .some((point) => shipArray.some((ship: Ship) => ship.shipArea.includes(point)));
 
