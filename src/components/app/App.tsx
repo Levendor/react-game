@@ -7,6 +7,7 @@ import ScoreLine from '../score-line';
 import Field from '../../model/Field';
 
 import './App.scss';
+import MovesCounter from '../moves-counter';
 
 interface Props {
 }
@@ -16,11 +17,14 @@ interface State {
   player1Field: Array<number[]>;
   user2Name: string;
   player2Field: Array<number[]>;
-  disabled: boolean;
+  disabledApp: boolean;
+  disabledField: boolean;
 }
 
 let player1Field = new Field();
 let player2Field = new Field();
+
+// console.log(new Field(JSON.parse(JSON.stringify(player1Field))));
 
 export default class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -28,27 +32,11 @@ export default class App extends Component<Props, State> {
     this.state = {
       user1Name: '123456789012',
       player1Field: player1Field.field,
-      user2Name: '',
+      user2Name: 'computer',
       player2Field: player1Field.field,
-      disabled: false,
+      disabledApp: false,
+      disabledField: false,
     }
-  }
-
-  componentDidMount() {
-    // const user1Name = "123456789012"; //this.props.player1Name;
-    // const player1Field = new Field();
-    // const friendlyField = player1Field.field;
-    // const user2Name = "computer"; //this.props.player2Name;
-    // const player2Field = new Field();
-    // const foeField = player2Field.field;
-    // this.setState({ 
-    //   user1Name,
-    //   player1Field,
-    //   friendlyField,
-    //   user2Name,
-    //   player2Field,
-    //   foeField,
-    // })
   }
 
   newGame = () => {
@@ -56,7 +44,8 @@ export default class App extends Component<Props, State> {
     player2Field = new Field();
 
     this.setState({
-      disabled: false,
+      disabledApp: false,
+      disabledField: false,
       player1Field: player1Field.field,
       player2Field: player1Field.field,
     });
@@ -70,9 +59,15 @@ export default class App extends Component<Props, State> {
           return shot === cell;
         })
       })
-    })) return;
+    })) {
+      this.setState({ disabledApp: false })
+      return;
+    };
     
-    this.setState({ disabled: true })
+    this.setState({ 
+      disabledApp: true,
+      disabledField: true,
+     })
     
     if (index) { 
       this.setState({ 
@@ -90,22 +85,23 @@ export default class App extends Component<Props, State> {
   blowsExchange = (coordinates: number[]) => {
     this.setState({
       player2Field: player2Field.shot(coordinates),
-      disabled: true,
+      disabledApp: true,
     });
 
     setTimeout(() => {
       this.setState({ 
         player1Field: player1Field.shot(aiming(player1Field)),
-        disabled: false,
+        disabledApp: false,
       });
     }, 500);
   }
 
   render() {
-    const { user1Name, user2Name, disabled } = this.state;
-    const containerClass = disabled ? "battlefield-container disabled" : "battlefield-container";
+    const { user1Name, user2Name, disabledApp, disabledField } = this.state;
+    const appClass = disabledApp ? "disabled" : "";
+    const fieldClass = disabledField ? "disabled" : "";
     return (
-      <div className="app">
+      <div className={`app ${appClass}`}>
         <Header callbacks={[
             this.newGame,
             console.log,
@@ -114,10 +110,10 @@ export default class App extends Component<Props, State> {
             console.log,
           ]} />
         <ScoreLine bestOf={3} score={[1, 2]} players={[user1Name, user2Name]}/>
-        <div className={containerClass}>
+        <div className={`battlefield-container border ${fieldClass}`}>
           <Battlefield side="friend"
                        field={this.state.player1Field} />
-          <div className="gap"></div>
+          <MovesCounter counter={player1Field.shots.length} />
           <Battlefield side="foe"
                        field={this.state.player2Field}
                        onCellClick={this.blowsExchange} />

@@ -1,7 +1,10 @@
-const FIELD_SIZE = 10;
-const BEST_OF_SETTINGS = [1, 2, 3];
-const SHIP_AREA_WIDTH = 3;
-const SHIPS = [
+const DEFAULT_PLAYER2_NAME: string = 'computer';
+const DEFAULT_BEST_OF: number = 1;
+const INITIAL_SCORE: number[] = [0, 0];
+const FIELD_SIZE: number = 10;
+const BEST_OF_SETTINGS: number[] = [1, 2, 3];
+const SHIP_AREA_WIDTH: number = 3;
+const SHIPS: string[] = [
   'battlecruiser',
   'cruiser',
   'cruiser',
@@ -13,9 +16,9 @@ const SHIPS = [
   'boat',
   'boat',
 ];
-const TOP_LINE_TEMPLATE = ['', 'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'к'];
-const LEFT_LINE_TEMPLATE = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-const FIELD_TEMPLATE = [
+const TOP_LINE_TEMPLATE: string[] = ['', 'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'к'];
+const LEFT_LINE_TEMPLATE: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const FIELD_TEMPLATE: Array<number[]> = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,7 +30,7 @@ const FIELD_TEMPLATE = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
-const HEADER_BUTTONS_TITLES = [
+const HEADER_BUTTONS_TITLES: string[] = [
   'New game',
   'Statistics',
   'Settings',
@@ -36,6 +39,9 @@ const HEADER_BUTTONS_TITLES = [
 ]
 
 export {
+  DEFAULT_PLAYER2_NAME,
+  DEFAULT_BEST_OF,
+  INITIAL_SCORE,
   FIELD_SIZE,
   SHIPS,
   BEST_OF_SETTINGS,

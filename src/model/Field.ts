@@ -7,15 +7,21 @@ export default class Field {
   stringOccupiedCells: string[];
   field: Array<number[]>;
   shots: string[];
-  hit: string[];
 
   constructor(loadedField?: Field) {
-    this.ships = this.createShips();
-    this.occupiedCells = this.placeShips(this.ships);
-    this.stringOccupiedCells = this.occupiedCells.map((cell) => cell.join(''))
-    this.field = this.generateField(this.occupiedCells);
+    this.ships = loadedField 
+      ? [] 
+      : this.createShips();
+    this.occupiedCells = loadedField
+      ? []
+      : this.placeShips(this.ships);
+    this.stringOccupiedCells = loadedField
+      ? []
+      : this.occupiedCells.map((cell) => cell.join(''))
+    this.field = loadedField
+      ? []
+      : this.generateField(this.occupiedCells);
     this.shots = [];
-    this.hit = [];
     if (loadedField) Object.assign(this, loadedField);
   }
 

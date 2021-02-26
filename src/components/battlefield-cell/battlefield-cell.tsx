@@ -35,7 +35,7 @@ export default class Cell extends Component<Props> {
     return (
       <div className={ cellValue ? "cell grid-cell disabled" : "cell grid-cell" }
            onClick={
-             () => {if (onCellClick) onCellClick(coordinates)}
+             () => {if (onCellClick) onCellClick(coordinates, cellValue)}
             }
            style={{gridArea: `cell-${coordinates.join('')}`}}>
             {cellValue}
