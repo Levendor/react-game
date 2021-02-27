@@ -74,7 +74,7 @@ export default class Field {
     return field;
   }
 
-  aiming = (coordinates: number[]) => {
+  targeting = (coordinates: number[]) => {
     const point = coordinates.join('');
     return this.shots.some((shot) => shot === point);
   }

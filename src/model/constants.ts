@@ -4,6 +4,10 @@ const DEFAULT_PLAYER2_NAME: string = 'computer';
 const DEFAULT_BEST_OF: number = 1;
 const INITIAL_SCORE: number[] = [0, 0];
 const FIELD_SIZE: number = 10;
+const EMPTY_CELL = 0;
+const CELL_WITH_SHIP = 1;
+const HIT = 2;
+const MISS = 3;
 const BEST_OF_SETTINGS: number[] = [1, 2, 3];
 const SHIP_AREA_WIDTH: number = 3;
 const SHIPS: string[] = [
@@ -48,6 +52,10 @@ export {
   INITIAL_SCORE,
   FIELD_SIZE,
   SHIPS,
+  EMPTY_CELL,
+  CELL_WITH_SHIP,
+  HIT,
+  MISS,
   BEST_OF_SETTINGS,
   SHIP_AREA_WIDTH,
   TOP_LINE_TEMPLATE,

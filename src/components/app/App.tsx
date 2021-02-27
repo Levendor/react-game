@@ -25,8 +25,6 @@ interface State {
 let player1Field = new Field();
 let player2Field = new Field();
 
-// console.log(new Field(JSON.parse(JSON.stringify(player1Field))));
-
 export default class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -84,18 +82,36 @@ export default class App extends Component<Props, State> {
   }
 
   blowsExchange = (coordinates: number[], shotResult: number) => {
-    console.log('твой ход:')
+    const hit = shotResult ? 'попал' : 'мимо';
+    console.log('твой ход:', hit)
     this.setState({
       player2Field: player2Field.shot(coordinates),
       disabledApp: true,
     });
-
-    setTimeout(() => {
-      console.log('ход компьютера:')
+    if (!shotResult) {
+      this.enemyStrike();
+    } else {
       this.setState({ 
-        player1Field: player1Field.shot(aiming(player1Field)),
         disabledApp: false,
       });
+    }
+  }
+
+  enemyStrike() {
+    const strikeBack = aiming(player1Field);
+    setTimeout(() => {
+      this.setState({ 
+        player1Field: player1Field.shot(strikeBack),
+        disabledApp: false,
+      });
+      const enemyHit = player1Field.isHit(strikeBack.join(''));
+      console.log(
+        'ход компьютера:',
+        enemyHit
+          ? 'попал'
+          : 'мимо'
+      );
+      if (enemyHit) this.enemyStrike();
     }, 500);
   }
 
@@ -141,6 +157,6 @@ const aiming = (field: Field) => {
       Math.floor(Math.random() * FIELD_SIZE),
     ];
   }
-  } while (field.aiming(point));
+  } while (field.targeting(point));
   return point;
 }
