@@ -5,7 +5,7 @@ import Header from '../header';
 import ScoreLine from '../score-line';
 import MovesCounter from '../moves-counter';
 
-import { FIELD_SIZE } from '../../model//constants';
+import { FIELD_SIZE, INITIAL_SHOT_BEFORE_LAST } from '../../model//constants';
 import Field from '../../model/Field';
 
 import './App.scss';
@@ -84,12 +84,14 @@ export default class App extends Component<Props, State> {
   }
 
   blowsExchange = (coordinates: number[], shotResult: number) => {
+    console.log('твой ход:')
     this.setState({
       player2Field: player2Field.shot(coordinates),
       disabledApp: true,
     });
 
     setTimeout(() => {
+      console.log('ход компьютера:')
       this.setState({ 
         player1Field: player1Field.shot(aiming(player1Field)),
         disabledApp: false,
@@ -114,7 +116,8 @@ export default class App extends Component<Props, State> {
         <div className={`battlefield-container border ${fieldClass}`}>
           <Battlefield side="friend"
                        field={this.state.player1Field} />
-          <MovesCounter counter={player1Field.shots.length} />
+          <MovesCounter player1Counter={player2Field.shots.length}
+                        player2Counter={player1Field.shots.length} />
           <Battlefield side="foe"
                        field={this.state.player2Field}
                        onCellClick={this.blowsExchange} />
@@ -127,7 +130,7 @@ export default class App extends Component<Props, State> {
 
 const aiming = (field: Field) => {
   let point: number[];
-  const targets = field.checkCellsNearby(1);
+  const targets = field.checkCellsNearby(INITIAL_SHOT_BEFORE_LAST);
   const length = targets.length;
   do {
     if (length) {

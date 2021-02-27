@@ -1,4 +1,4 @@
-import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS } from './constants';
+import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS, MAX_NEARBY_CELLS } from './constants';
 import Ship from './Ship';
 
 export default class Field {
@@ -7,6 +7,7 @@ export default class Field {
   stringOccupiedCells: string[];
   field: Array<number[]>;
   shots: string[];
+  wreckedShipsArea: string[];
 
   constructor(loadedField?: Field) {
     this.ships = loadedField 
@@ -22,6 +23,7 @@ export default class Field {
       ? []
       : this.generateField(this.occupiedCells);
     this.shots = [];
+    this.wreckedShipsArea = [];
     if (loadedField) Object.assign(this, loadedField);
   }
 
@@ -78,25 +80,50 @@ export default class Field {
   }
 
   shot = (coordinates: number[]) => {
-    const point = [...coordinates];
+    this.shots.push(coordinates.join(''));
 
-    this.shots.push(point.join(''));
+    const wreckedShip = this.getWreckedShipArea(coordinates)
+    const wreckedShipArea = wreckedShip ? wreckedShip.shipArea : [];
+    const stringWreckedShipArea = wreckedShip ? wreckedShip.stringShipArea : [];
+    this.wreckedShipsArea = Array.from(new Set([...this.wreckedShipsArea, ...stringWreckedShipArea]));
 
-    this.field = this.field.map((row, rowIndex) => {
-      if (rowIndex === point[0]) {
-        return row.map((cell, cellIndex) => {
-          if (cellIndex === point[1]) {
-            if (cell === 0) return 3;
-            else if (cell === 1) return 2;
-            return cell
-          }
-          return cell;
-        })
-      }
-      return row;
+    const coordinatesToMark = wreckedShip
+      ? [coordinates, ...wreckedShipArea]
+      : [coordinates];
+
+    coordinatesToMark.forEach((coordinates) => {
+      this.field = this.field.map((row, rowIndex) => {
+          if (rowIndex === coordinates[0]) {
+          return row.map((cell, cellIndex) => {
+            if (cellIndex === coordinates[1]) {
+              if (cell === 0) return 3;
+              else if (cell === 1) return 2;
+              return cell
+            }
+            return cell;
+          })
+        }
+        return row;
+      })
     })
 
     return this.field;
+  }
+
+  whatIsThisShip = (coordinates: number[]) => {
+    return this.ships.find((ship) => {
+      return ship.stringCoordinates.includes(coordinates.join(''));
+    })
+  }
+
+  isShipWrecked = (ship: Ship) => {
+    return ship.stringCoordinates.every((hitPoint) => this.shots.includes(hitPoint));
+  }
+
+  getWreckedShipArea = (coordinates: number[]) => {
+    let ship = this.whatIsThisShip(coordinates);
+    if (ship && this.isShipWrecked(ship)) return ship;
+    return undefined;
   }
 
   isHit = (hitPoint?:string) => {
@@ -106,21 +133,72 @@ export default class Field {
     })
   }
 
-  checkCellsNearby = (i: number): any => {
-    console.log(i);
-    if (i > 4) return [];
-    const hitPoint = this.shots[this.shots.length - i];
+  getCellsNearby = (hitPoint: string) => {
+    const [hitPointY, hitPointX] = [+hitPoint[0], +hitPoint[1]];
+    return [
+      [hitPointY + 1, hitPointX],
+      [hitPointY - 1, hitPointX],
+      [hitPointY, hitPointX + 1],
+      [hitPointY, hitPointX - 1],
+    ]
+  }
+
+  isIntactCell = (coordinates: number[]) => {
+    const point = coordinates.join('');
+    return !this.shots.includes(point)
+      && !this.wreckedShipsArea.includes(point)
+  }
+
+  isCellWithinBattlefield = (coordinates: number[]) => {
+    return coordinates.every((coordinate) => coordinate >= 0 && coordinate < FIELD_SIZE)
+  }
+
+  checkCellsNearby = (shotsBeforeLast: number): number[][] => {
+    if (shotsBeforeLast > MAX_NEARBY_CELLS) return [];
+    const hitPoint = this.shots[this.shots.length - shotsBeforeLast];
     if (this.isHit(hitPoint)) {
-      const [hitPointY, hitPointX] = [+hitPoint[0], +hitPoint[1]];
-      return [
-        [hitPointY + 1, hitPointX],
-        [hitPointY - 1, hitPointX],
-        [hitPointY, hitPointX + 1],
-        [hitPointY, hitPointX - 1],
-      ]
-      .filter((hitPoint) => !this.shots.includes(hitPoint.join('')))
-      .filter((hitPoint) => hitPoint
-          .every((coordinate) => coordinate >= 0 && coordinate < FIELD_SIZE))
-    } else return this.checkCellsNearby(i + 1);
+      const validCellsNearby = this.getCellsNearby(hitPoint)
+        .filter(this.isCellWithinBattlefield);
+
+      const intactValidCellsNearby = validCellsNearby.filter(this.isIntactCell);
+      if (!intactValidCellsNearby.length) return [];
+  
+      const anotherShipDecks = this.isLongShipGetHerAnotherDecks(hitPoint, validCellsNearby);
+      const intactAnotherShipDecks = anotherShipDecks.filter(this.isIntactCell);
+
+      if (intactAnotherShipDecks.length) {
+        return intactAnotherShipDecks;
+      } else {
+        return intactValidCellsNearby;
+      }
+    } else return this.checkCellsNearby(shotsBeforeLast + 1);
+  }
+
+  isLongShipGetHerAnotherDecks = (
+    hitPoint: string,
+    cellsNearby: number[][],
+  ): number[][] => {
+    const hitCoordinates = hitPoint.split('');
+    const anotherWreckedShipDeck = cellsNearby.find((cell) => {
+      return this.shots.includes(cell.join(''))
+        && this.stringOccupiedCells.includes(cell.join(''))
+    })
+    let anotherShipDecks: number[][];
+    if (anotherWreckedShipDeck) {
+      const diffY = Math.abs(+hitCoordinates[0] - anotherWreckedShipDeck[0]);
+      const diffX = Math.abs(+hitCoordinates[1] - anotherWreckedShipDeck[1]);
+      if (diffY === 1) { anotherShipDecks = [
+          [+hitCoordinates[0] + 1, +hitCoordinates[1]],
+          [anotherWreckedShipDeck[0] - 1, anotherWreckedShipDeck[1]],
+          [anotherWreckedShipDeck[0] + 1, +hitCoordinates[1]],
+          [+hitCoordinates[0] - 1, anotherWreckedShipDeck[1]],
+      ]} else if (diffX === 1) {anotherShipDecks = [
+        [+hitCoordinates[0], +hitCoordinates[1] + 1],
+        [anotherWreckedShipDeck[0], anotherWreckedShipDeck[1] + 1],
+        [anotherWreckedShipDeck[0], +hitCoordinates[1] - 1],
+        [+hitCoordinates[0], anotherWreckedShipDeck[1] - 1],
+      ]} else anotherShipDecks = [];
+    } else anotherShipDecks = [];
+    return anotherShipDecks;
   }
 }

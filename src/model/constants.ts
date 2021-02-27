@@ -1,3 +1,5 @@
+const INITIAL_SHOT_BEFORE_LAST = 1;
+const MAX_NEARBY_CELLS = 4;
 const DEFAULT_PLAYER2_NAME: string = 'computer';
 const DEFAULT_BEST_OF: number = 1;
 const INITIAL_SCORE: number[] = [0, 0];
@@ -39,6 +41,8 @@ const HEADER_BUTTONS_TITLES: string[] = [
 ]
 
 export {
+  INITIAL_SHOT_BEFORE_LAST,
+  MAX_NEARBY_CELLS,
   DEFAULT_PLAYER2_NAME,
   DEFAULT_BEST_OF,
   INITIAL_SCORE,
