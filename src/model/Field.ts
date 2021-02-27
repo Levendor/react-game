@@ -77,7 +77,7 @@ export default class Field {
     return this.shots.some((shot) => shot === point);
   }
 
-  shot(coordinates: number[]) {
+  shot = (coordinates: number[]) => {
     const point = [...coordinates];
 
     this.shots.push(point.join(''));
@@ -97,5 +97,30 @@ export default class Field {
     })
 
     return this.field;
+  }
+
+  isHit = (hitPoint?:string) => {
+    const checkPoint = hitPoint ? hitPoint : this.shots[this.shots.length - 1];
+    return this.stringOccupiedCells.some((point) => {
+      return point === checkPoint;
+    })
+  }
+
+  checkCellsNearby = (i: number): any => {
+    console.log(i);
+    if (i > 4) return [];
+    const hitPoint = this.shots[this.shots.length - i];
+    if (this.isHit(hitPoint)) {
+      const [hitPointY, hitPointX] = [+hitPoint[0], +hitPoint[1]];
+      return [
+        [hitPointY + 1, hitPointX],
+        [hitPointY - 1, hitPointX],
+        [hitPointY, hitPointX + 1],
+        [hitPointY, hitPointX - 1],
+      ]
+      .filter((hitPoint) => !this.shots.includes(hitPoint.join('')))
+      .filter((hitPoint) => hitPoint
+          .every((coordinate) => coordinate >= 0 && coordinate < FIELD_SIZE))
+    } else return this.checkCellsNearby(i + 1);
   }
 }

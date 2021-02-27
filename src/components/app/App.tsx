@@ -3,11 +3,12 @@ import Battlefield from '../battlefield';
 import Footer from '../footer';
 import Header from '../header';
 import ScoreLine from '../score-line';
+import MovesCounter from '../moves-counter';
 
+import { FIELD_SIZE } from '../../model//constants';
 import Field from '../../model/Field';
 
 import './App.scss';
-import MovesCounter from '../moves-counter';
 
 interface Props {
 }
@@ -82,7 +83,7 @@ export default class App extends Component<Props, State> {
     setTimeout(() => this.autoGame((index + 1) % 2), 50);
   }
 
-  blowsExchange = (coordinates: number[]) => {
+  blowsExchange = (coordinates: number[], shotResult: number) => {
     this.setState({
       player2Field: player2Field.shot(coordinates),
       disabledApp: true,
@@ -125,12 +126,18 @@ export default class App extends Component<Props, State> {
 }
 
 const aiming = (field: Field) => {
-  let point: number[]; 
+  let point: number[];
+  const targets = field.checkCellsNearby(1);
+  const length = targets.length;
   do {
-    point = [
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10),
+    if (length) {
+      point = targets[Math.floor(Math.random() * length)];
+    } else {
+      point = [
+      Math.floor(Math.random() * FIELD_SIZE),
+      Math.floor(Math.random() * FIELD_SIZE),
     ];
+  }
   } while (field.aiming(point));
   return point;
 }
