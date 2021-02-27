@@ -64,6 +64,14 @@ export default class Model {
     });
   }
 
+  isAutoGameOver(field: Field, fields: Field[], index: number) {
+    return field.stringOccupiedCells.every((cell) => {
+      return fields[index].shots.some((shot) => {
+        return shot === cell;
+      })
+    })
+  }
+
   newGame = (bestOf: number) => {
     this.game = {
       bestOf,

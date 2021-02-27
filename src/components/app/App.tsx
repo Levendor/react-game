@@ -7,8 +7,14 @@ import MovesCounter from '../moves-counter';
 
 import { FIELD_SIZE, INITIAL_SHOT_BEFORE_LAST } from '../../model//constants';
 import Field from '../../model/Field';
+import Model from '../../model/Model';
 
 import './App.scss';
+
+const model = new Model();
+
+let player1Field = new Field();
+let player2Field = new Field();
 
 interface Props {
 }
@@ -19,11 +25,8 @@ interface State {
   user2Name: string;
   player2Field: Array<number[]>;
   disabledApp: boolean;
-  disabledField: boolean;
+  isAutoGame: boolean;
 }
-
-let player1Field = new Field();
-let player2Field = new Field();
 
 export default class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -34,7 +37,7 @@ export default class App extends Component<Props, State> {
       user2Name: 'computer',
       player2Field: player1Field.field,
       disabledApp: false,
-      disabledField: false,
+      isAutoGame: false,
     }
   }
 
@@ -44,7 +47,7 @@ export default class App extends Component<Props, State> {
 
     this.setState({
       disabledApp: false,
-      disabledField: false,
+      isAutoGame: false,
       player1Field: player1Field.field,
       player2Field: player1Field.field,
     });
@@ -53,11 +56,7 @@ export default class App extends Component<Props, State> {
   autoGame = (index: number) => {
     const fields = [player1Field, player2Field];
     if (fields.some((field) => {
-      return field.stringOccupiedCells.every((cell) => {
-        return fields[index].shots.some((shot) => {
-          return shot === cell;
-        })
-      })
+      return model.isAutoGameOver(field, fields, index)
     })) {
       this.setState({ disabledApp: false })
       return;
@@ -65,35 +64,57 @@ export default class App extends Component<Props, State> {
     
     this.setState({ 
       disabledApp: true,
-      disabledField: true,
+      isAutoGame: true,
      })
     
-    if (index) { 
-      this.setState({ 
-        player2Field: fields[index].shot(aiming(fields[index])),
-      });
+    if (index) {
+      const comp1Strike = () => {
+        const comp1Coordinate = aiming(fields[index]);
+        this.setState({ 
+          player2Field: fields[index].shot(comp1Coordinate),
+        });
+        const enemyHit = player2Field.isHit(comp1Coordinate.join(''));
+        if (enemyHit) setTimeout(() => comp1Strike(), 50);
+      }
+      comp1Strike();
     } else { 
-      this.setState({ 
-        player1Field: fields[index].shot(aiming(fields[index])),
-      });
+      const comp2Strike = () => {
+        const comp2Coordinate = aiming(fields[index]);
+        this.setState({ 
+          player1Field: fields[index].shot(comp2Coordinate),
+        });
+        const enemyHit = player1Field.isHit(comp2Coordinate.join(''));
+        if (enemyHit) setTimeout(() => comp2Strike(), 50);
+      }
+      comp2Strike();
     }
 
     setTimeout(() => this.autoGame((index + 1) % 2), 50);
   }
 
-  blowsExchange = (coordinates: number[], shotResult: number) => {
-    const hit = shotResult ? 'попал' : 'мимо';
-    console.log('твой ход:', hit)
+  blowsExchange = (coordinates: number[]) => {
     this.setState({
       player2Field: player2Field.shot(coordinates),
       disabledApp: true,
     });
-    if (!shotResult) {
-      this.enemyStrike();
-    } else {
+    const ship = player2Field.whatIsThisShip(coordinates);
+    const isShipDestroyed = ship
+      ? player2Field.isShipWrecked(ship)
+      : undefined;
+    console.log(
+      'твой ход:',
+      ship
+        ? (isShipDestroyed
+          ? 'убил'
+          : 'попал')
+        : 'мимо'
+    );
+    if (ship) {
       this.setState({ 
         disabledApp: false,
       });
+    } else {
+      this.enemyStrike();
     }
   }
 
@@ -104,21 +125,27 @@ export default class App extends Component<Props, State> {
         player1Field: player1Field.shot(strikeBack),
         disabledApp: false,
       });
-      const enemyHit = player1Field.isHit(strikeBack.join(''));
+      const ship = player1Field.whatIsThisShip(strikeBack);
+      const isShipDestroyed = ship
+        ? player1Field.isShipWrecked(ship)
+        : undefined;
       console.log(
         'ход компьютера:',
-        enemyHit
-          ? 'попал'
+        ship
+          ? (isShipDestroyed
+            ? 'убил'
+            : 'попал')
           : 'мимо'
       );
-      if (enemyHit) this.enemyStrike();
+      if (ship) this.enemyStrike();
     }, 500);
   }
 
   render() {
-    const { user1Name, user2Name, disabledApp, disabledField } = this.state;
+    const { user1Name, user2Name, disabledApp, isAutoGame } = this.state;
     const appClass = disabledApp ? "disabled" : "";
-    const fieldClass = disabledField ? "disabled" : "";
+    const fieldClass = isAutoGame ? "disabled" : "";
+    const battlefield2Side = isAutoGame ? "friend" : "foe";
     return (
       <div className={`app ${appClass}`}>
         <Header callbacks={[
@@ -134,7 +161,7 @@ export default class App extends Component<Props, State> {
                        field={this.state.player1Field} />
           <MovesCounter player1Counter={player2Field.shots.length}
                         player2Counter={player1Field.shots.length} />
-          <Battlefield side="foe"
+          <Battlefield side={battlefield2Side}
                        field={this.state.player2Field}
                        onCellClick={this.blowsExchange} />
         </div>
