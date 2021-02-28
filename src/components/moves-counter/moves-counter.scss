@@ -1,10 +1,32 @@
 .moves-counter {
   display: flex;
-  min-width: 3rem;
-  min-height: 3rem;
+  min-width: 8rem;
+  min-height: 8rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  grid-area: movesCounter;
+
+  .moves-counter_container {
+    display: flex;
+    flex-direction: column;
+
+    @media screen and (max-width: 1300px) {
+      flex-direction: row;
+      column-gap: 2rem;
+    }
+
+    @media screen and (max-width: 1300px) {
+      margin-bottom: -1rem;
+    }
+  }
+
+  .moves-counter_container_small {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
   .moves-counter_title {
     font-size: 2rem;

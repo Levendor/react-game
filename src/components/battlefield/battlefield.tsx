@@ -4,38 +4,33 @@ import './battlefield.scss';
 import Line from '../battlefield-line';
 import Cell from '../battlefield-cell';
 
-interface State {
-}
-
 interface Props {
   side: string;
   field: Array<number[]>;
   onCellClick?: Function;
+  isAutoGame?: boolean
 }
 
-export default class Battlefield extends Component<Props, State> {
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-    }
-  }
-
+export default class Battlefield extends Component<Props> {
   render() {
-    const { side } = this.props;
-    const className = side === "foe" ? "battlefield" : "battlefield disabled"
+    const { side, field, onCellClick, isAutoGame } = this.props;
+    const className = isAutoGame
+      ? "battlefield disabled"
+      : side === "foe"
+        ? "battlefield disabled"
+        : "battlefield";
     return (
-      <div className={className}>
+      <div className={className} style={{gridArea: `${side}`}}>
         <Line position="top" />
         <Line position="left" />
         {
-          this.props.field.map((row, i) => {
+          field.map((row, i) => {
             return (
               row.map((cell, j) => {
                 return <Cell value={cell}
                              side={side}
                              coordinates={[i, j]}
-                             onCellClick={this.props.onCellClick}
+                             onCellClick={onCellClick}
                              key={`${i}${j}`} />
               })
             )

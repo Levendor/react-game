@@ -4,6 +4,7 @@ import Footer from '../footer';
 import Header from '../header';
 import ScoreLine from '../score-line';
 import MovesCounter from '../moves-counter';
+import Modal from '../modal';
 
 
 import { AUTO_GAME_TIME_STEP, GAME_TIME_STEP, TIME_BEFORE_NEW_ROUND } from '../../model/constants';
@@ -26,6 +27,7 @@ interface State {
   user2Name: string;
   player2Field: Array<number[]>;
   player2Moves: number;
+  modalWindow: string;
   disabledApp: boolean;
   disabledField: boolean;
   isAutoGame: boolean;
@@ -43,6 +45,7 @@ export default class App extends Component<Props, State> {
       user2Name: this.props.model.player2,
       player2Field: this.props.model.game.player2Field.field,
       player2Moves: this.props.model.game.player2Field.shots.length,
+      modalWindow: '',
       disabledApp: false,
       disabledField: false,
       isAutoGame: false,
@@ -199,25 +202,47 @@ export default class App extends Component<Props, State> {
     }, GAME_TIME_STEP);
   }
 
+  openSettings = () => {
+    this.setState({
+      modalWindow: 'Settings',
+    });
+  }
+
+  openStatistics = () => {
+    this.setState({
+      modalWindow: 'Statistics',
+    });
+  }
+
+  openChangeUser = () => {
+    this.setState({
+      modalWindow: 'Change User',
+    });
+  }
+
+  closeModal = () => {
+    this.setState({
+      modalWindow: '',
+    });
+  }
+
   render() {
-    const { user1Name, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, score } = this.state;
+    const { user1Name, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, score, modalWindow } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame || disabledField ? "disabled" : "";
-    const battlefield2Side = isAutoGame ? "friend" : "foe";
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
     const player2Title = isAutoGame ? "компа 2:" : "компа:";
 
     return (
       <div className={`app ${appClass}`}>
+        <Modal modalWindow={modalWindow}
+               onButtonClick={this.closeModal} />
         <Header callbacks={[
             this.newGame,
-            console.log,
-            console.log,
-            () => {
-              this.newGame();
-              this.autoGame(0);
-            },
-            console.log,
+            this.openStatistics,
+            this.openSettings,
+            () => {this.newGame(); this.autoGame(0);},
+            this.openChangeUser,
           ]} />
         <ScoreLine bestOf={bestOf}
                    score={score}
@@ -229,9 +254,10 @@ export default class App extends Component<Props, State> {
                         player2Counter={player2Moves}
                         player1Title={player1Title}
                         player2Title={player2Title} />
-          <Battlefield side={battlefield2Side}
+          <Battlefield side="foe"
                        field={player2Field}
-                       onCellClick={this.blowsExchange} />
+                       onCellClick={this.blowsExchange}
+                       isAutoGame={isAutoGame} />
         </div>
         <Footer />
       </div>

@@ -1,0 +1,32 @@
+.modal {
+  position: absolute;
+  margin: auto;
+  padding: 0.5rem;
+  padding-bottom: 4.3rem;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 30rem;
+  height: 30rem;
+
+  @media screen and (max-width: 950px) {
+    transform: translate(0, -80%);
+  }
+
+  .modal-title {
+    font-size: 3rem;
+    text-align: center;
+  }
+
+  .modal-button {
+    position: absolute;
+    bottom: 0.5rem;
+    font-size: 2rem;
+  }
+}
+
+.hidden {
+  display: none;
+}

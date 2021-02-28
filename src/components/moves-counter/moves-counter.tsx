@@ -14,18 +14,25 @@ export default function MovesCounter(props: Props) {
       <span className="moves-counter_title">
         Ходов:
       </span>
-      <span className="moves-counter_text">
-        {props.player1Title}
-      </span>
-      <span className="moves-counter_numbers">
-        {props.player1Counter}
-      </span>
-      <span className="moves-counter_text">
-        {props.player2Title}
-      </span>
-      <span className="moves-counter_numbers">
-        {props.player2Counter}
-      </span>
+      <div className="moves-counter_container">
+        <div className="moves-counter_container_small">
+          <span className="moves-counter_text">
+            {props.player1Title}
+          </span>
+          <span className="moves-counter_numbers">
+            {props.player1Counter}
+          </span>
+        </div>
+        
+        <div className="moves-counter_container_small">
+          <span className="moves-counter_text">
+            {props.player2Title}
+          </span>
+          <span className="moves-counter_numbers">
+            {props.player2Counter}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
