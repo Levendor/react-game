@@ -1,4 +1,4 @@
-import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS, MAX_NEARBY_CELLS, INITIAL_SHOT_BEFORE_LAST } from './constants';
+import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS, MAX_NEARBY_CELLS, INITIAL_SHOT_BEFORE_LAST, DEFAULT_DIFFICULTY_LEVEL } from './constants';
 import Ship from './Ship';
 
 export default class Field {
@@ -8,6 +8,7 @@ export default class Field {
   field: Array<number[]>;
   shots: string[];
   wreckedShipsArea: string[];
+  difficultyLevel: number;
 
   constructor(loadedField?: Field) {
     this.ships = loadedField 
@@ -24,10 +25,15 @@ export default class Field {
       : this.generateField(this.occupiedCells);
     this.shots = [];
     this.wreckedShipsArea = [];
+    this.difficultyLevel = DEFAULT_DIFFICULTY_LEVEL;
     if (loadedField) Object.assign(this, loadedField);
   }
 
-  createShips(): Ship[] {
+  setDifficultyLevel = (difficultyLevel: number) => {
+    this.difficultyLevel = difficultyLevel;
+  }
+
+  createShips = (): Ship[] => {
     const ships: Ship[] = [];
     SHIPS.forEach((ship: string) => {
       let newShip: Ship;
@@ -39,24 +45,27 @@ export default class Field {
         ];
         newShip = new Ship(ship, position, entryPoints);
       } while (this.isShipPlacedWrong(newShip.coordinates,
-                                 newShip.stringCoordinates,
-                                        ships));
+                                      newShip.stringCoordinates,
+                                      ships));
       ships.push(newShip);
     })
     return ships;
   }
 
-  isShipPlacedWrong(coordinates: Array<number[]>, stringCoordinates: string[], shipArray: Ship[]) {
+  isShipPlacedWrong = (coordinates: Array<number[]>, stringCoordinates: string[], shipArray: Ship[]) => {
     const isShipsIntersected: boolean = stringCoordinates
-      .some((point) => shipArray.some((ship: Ship) => ship.stringShipArea.includes(point)));
+      .some((point) => shipArray
+        .some((ship: Ship) => ship.stringShipArea
+          .includes(point)));
   
     const isShipOutsideField: boolean = coordinates
-      .some((point: number[]) => point.some((coordinate: number) => coordinate >= FIELD_SIZE));
+      .some((point: number[]) => point
+        .some((coordinate: number) => coordinate >= FIELD_SIZE));
   
     return isShipsIntersected || isShipOutsideField;
   }
   
-  placeShips(shipsArray: Ship[]) {
+  placeShips = (shipsArray: Ship[]) => {
     const occupiedCells = shipsArray.map((ship: Ship) => {
       return [...ship.coordinates]
     }).flat();
@@ -64,7 +73,7 @@ export default class Field {
     return occupiedCells;
   }
 
-  generateField(occupiedCellsArray: Array<number[]>) {
+  generateField = (occupiedCellsArray: Array<number[]>) => {
     const field = FIELD_TEMPLATE.map((row) => [...row]);
   
     occupiedCellsArray.forEach((cell) => {
@@ -82,7 +91,9 @@ export default class Field {
 
   aiming = () => {
     let point: number[];
-    const targets = this.checkCellsNearby(INITIAL_SHOT_BEFORE_LAST);
+    const targets = this.difficultyLevel > 1 
+      ? this.checkCellsNearby(INITIAL_SHOT_BEFORE_LAST)
+      : [];
     const length = targets.length;
     do {
       if (length) {
@@ -97,24 +108,25 @@ export default class Field {
     return point;
   }
 
-  shot = (coordinates: number[] | undefined) => {
-    const hitCoordinates = coordinates ? coordinates : [];
-    this.shots.push(hitCoordinates.join(''));
+  shot = (coordinates: number[]) => {
+    this.shots.push(coordinates.join(''));
 
-    const wreckedShip = this.getWreckedShipArea(hitCoordinates)
+    const wreckedShip = this.getWreckedShipArea(coordinates)
     const wreckedShipArea = wreckedShip ? wreckedShip.shipArea : [];
     const stringWreckedShipArea = wreckedShip ? wreckedShip.stringShipArea : [];
-    this.wreckedShipsArea = Array.from(new Set([...this.wreckedShipsArea, ...stringWreckedShipArea]));
+    this.wreckedShipsArea = Array
+      .from(new Set([...this.wreckedShipsArea, ...stringWreckedShipArea]));
 
     const coordinatesToMark = wreckedShip
-      ? [hitCoordinates, ...wreckedShipArea]
-      : [hitCoordinates];
+      ? [coordinates, ...wreckedShipArea]
+      : [coordinates];
 
     coordinatesToMark.forEach((coordinates) => {
+      const [Y, X] = coordinates;
       this.field = this.field.map((row, rowIndex) => {
-          if (rowIndex === coordinates[0]) {
+          if (rowIndex === Y) {
           return row.map((cell, cellIndex) => {
-            if (cellIndex === coordinates[1]) {
+            if (cellIndex === X) {
               if (cell === 0) return 3;
               else if (cell === 1) return 2;
               return cell
@@ -129,10 +141,9 @@ export default class Field {
     return this.field;
   }
 
-  whatIsThisShip = (coordinates: number[] | undefined) => {
-    const hitCoordinates = coordinates ? coordinates : [];
+  whatIsThisShip = (coordinates: number[]) => {
     return this.ships.find((ship) => {
-      return ship.stringCoordinates.includes(hitCoordinates.join(''));
+      return ship.stringCoordinates.includes(coordinates.join(''));
     })
   }
 
@@ -188,7 +199,9 @@ export default class Field {
       const intactValidCellsNearby = validCellsNearby.filter(this.isIntactCell);
       if (!intactValidCellsNearby.length) return [];
   
-      const anotherShipDecks = this.isLongShipGetHerAnotherDecks(hitPoint, validCellsNearby);
+      const anotherShipDecks = this.difficultyLevel > 2
+        ? this.isLongShipGetHerAnotherDecks(hitPoint, validCellsNearby)
+        : [];
       const intactAnotherShipDecks = anotherShipDecks.filter(this.isIntactCell);
 
       if (intactAnotherShipDecks.length) {
@@ -199,10 +212,7 @@ export default class Field {
     } else return this.checkCellsNearby(shotsBeforeLast + 1);
   }
 
-  isLongShipGetHerAnotherDecks = (
-    hitPoint: string,
-    cellsNearby: number[][],
-  ): number[][] => {
+  isLongShipGetHerAnotherDecks = (hitPoint: string, cellsNearby: number[][]): number[][] => {
     const hitCoordinates = hitPoint.split('');
     const anotherWreckedShipDeck = cellsNearby.find((cell) => {
       return this.shots.includes(cell.join(''))

@@ -34,7 +34,11 @@ export default class Cell extends Component<Props> {
     const { value, coordinates, onCellClick } = this.props;
     const cellValue = this.cellContent(value);
     return (
-      <div className={ cellValue ? "cell grid-cell disabled" : "cell grid-cell" }
+      <div className={ cellValue
+        ? (value === HIT
+          ? "cell grid-cell shake-cell disabled"
+          : "cell grid-cell disabled")
+        : "cell grid-cell" }
            onClick={
              () => {if (onCellClick) onCellClick(coordinates, value)}
             }

@@ -13,8 +13,76 @@
   }
 }
 
+@-webkit-keyframes shake {
+  0%, 25% {
+      left: -1px;
+      top:-1px;
+      -webkit-transform: translateX(-4%);
+      transform: translateX(-4%);
+  }
+  50%, 100% {
+      left: 1px;
+      top: 1px;
+      -webkit-transform: translateX(4%);
+      transform: translateX(4%);
+  }
+}
+@-moz-keyframes shake {
+  0%, 25% {
+      left: -1px;
+      -webkit-transform: translateX(-4%);
+      transform: translateX(-4%);
+  }
+  50%, 100% {
+      left: 1px;
+      -webkit-transform: translateX(4%);
+      transform: translateX(4%);
+  }
+}
+@-ms-keyframes shake {
+  0%, 25% {
+      left: -1px;
+      -webkit-transform: translateX(-4%);
+      transform: translateX(-4%);
+  }
+  50%, 100% {
+      left: 1px;
+      -webkit-transform: translateX(4%);
+      transform: translateX(4%);
+  }
+}
+@-o-keyframes shake {
+  0%, 25% {
+      left: -1px;
+      -webkit-transform: translateX(-4%);
+      transform: translateX(-4%);
+  }
+  50%, 100% {
+      left: 1px;
+      -webkit-transform: translateX(4%);
+      transform: translateX(4%);
+  }
+}
+@keyframes shake {
+  0%, 25% {
+      left: -1px;
+      -webkit-transform: translateX(-4%);
+      transform: translateX(-4%);
+  }
+  50%, 100% {
+      left: 1px;
+      -webkit-transform: translateX(4%);
+      transform: translateX(4%);
+  }
+}
+
 .grid-cell {
   font-size: 1rem;
+}
+
+.shake-cell svg {
+  -webkit-animation: 0.1s shake ease-out 0s 5; 
+  animation: 0.1s shake ease-out 0s 5;
 }
 
 .disabled {

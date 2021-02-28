@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { v4 } from 'uuid';
 import './battlefield-line.scss';
 
 import { LEFT_LINE_TEMPLATE, TOP_LINE_TEMPLATE } from '../../model/constants';
@@ -20,7 +19,7 @@ export default class Line extends Component<Props> {
         {
           line.map((cell) => {
             return <div className={`cell disabled ${position}-line-cell`}
-                        key={v4()}>
+                        key={`${position}${cell}`}>
                         {cell.toUpperCase()}
                    </div>
           })
