@@ -9,22 +9,25 @@ import PlayerName from '../score-line-player-name';
 import ScoreCounter from '../score-line-score-counter';
 
 interface Props {
-  bestOf: number;
-  score: number[];
-  players: string[];
+  bestOf: number | undefined;
+  score: number[] | undefined;
+  players: [(string | undefined), string];
 }
 
 export default class ScoreLine extends Component<Props> {
   render() {
     const { bestOf, score } = this.props
-    const [player1Score, player2Score] = score;
+    const [player1Score, player2Score] = score ? score : [];
     const starArr1 = new Array(bestOf)
       .fill(fullStar, 0, player1Score)
       .fill(emptyStar, player1Score);
     const starArr2 = new Array(bestOf)
-      .fill(emptyStar, 0, -player2Score)
-      .fill(fullStar, -player2Score);
-    const [player1Name, player2Name] = this.props.players;
+      .fill(fullStar, 0, player2Score)
+      .fill(emptyStar, player2Score)
+      .reverse();
+    const [player1Name, player2Name] = this.props.players
+      ? this.props.players
+      : [];
     return (
       <div className="score-line border">
         <WinCounter faIcon={starArr1} />

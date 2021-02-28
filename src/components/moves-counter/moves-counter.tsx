@@ -2,8 +2,10 @@ import React from 'react';
 import './moves-counter.scss';
 
 interface Props {
-  player1Counter: number;
-  player2Counter: number;
+  player1Counter: number | undefined;
+  player2Counter: number | undefined;
+  player1Title: string | undefined;
+  player2Title: string | undefined;
 }
 
 export default function MovesCounter(props: Props) {
@@ -13,13 +15,13 @@ export default function MovesCounter(props: Props) {
         Ходов:
       </span>
       <span className="moves-counter_text">
-        твоих:
+        {props.player1Title}
       </span>
       <span className="moves-counter_numbers">
         {props.player1Counter}
       </span>
       <span className="moves-counter_text">
-        компа:
+        {props.player2Title}
       </span>
       <span className="moves-counter_numbers">
         {props.player2Counter}

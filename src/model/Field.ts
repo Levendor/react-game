@@ -1,4 +1,4 @@
-import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS, MAX_NEARBY_CELLS } from './constants';
+import { FIELD_TEMPLATE, FIELD_SIZE, SHIPS, MAX_NEARBY_CELLS, INITIAL_SHOT_BEFORE_LAST } from './constants';
 import Ship from './Ship';
 
 export default class Field {
@@ -76,20 +76,39 @@ export default class Field {
 
   targeting = (coordinates: number[]) => {
     const point = coordinates.join('');
-    return this.shots.some((shot) => shot === point);
+    return this.shots.includes(point)
+      || this.wreckedShipsArea.includes(point)
   }
 
-  shot = (coordinates: number[]) => {
-    this.shots.push(coordinates.join(''));
+  aiming = () => {
+    let point: number[];
+    const targets = this.checkCellsNearby(INITIAL_SHOT_BEFORE_LAST);
+    const length = targets.length;
+    do {
+      if (length) {
+        point = targets[Math.floor(Math.random() * length)];
+      } else {
+        point = [
+        Math.floor(Math.random() * FIELD_SIZE),
+        Math.floor(Math.random() * FIELD_SIZE),
+      ];
+    }
+    } while (this.targeting(point));
+    return point;
+  }
 
-    const wreckedShip = this.getWreckedShipArea(coordinates)
+  shot = (coordinates: number[] | undefined) => {
+    const hitCoordinates = coordinates ? coordinates : [];
+    this.shots.push(hitCoordinates.join(''));
+
+    const wreckedShip = this.getWreckedShipArea(hitCoordinates)
     const wreckedShipArea = wreckedShip ? wreckedShip.shipArea : [];
     const stringWreckedShipArea = wreckedShip ? wreckedShip.stringShipArea : [];
     this.wreckedShipsArea = Array.from(new Set([...this.wreckedShipsArea, ...stringWreckedShipArea]));
 
     const coordinatesToMark = wreckedShip
-      ? [coordinates, ...wreckedShipArea]
-      : [coordinates];
+      ? [hitCoordinates, ...wreckedShipArea]
+      : [hitCoordinates];
 
     coordinatesToMark.forEach((coordinates) => {
       this.field = this.field.map((row, rowIndex) => {
@@ -110,19 +129,25 @@ export default class Field {
     return this.field;
   }
 
-  whatIsThisShip = (coordinates: number[]) => {
+  whatIsThisShip = (coordinates: number[] | undefined) => {
+    const hitCoordinates = coordinates ? coordinates : [];
     return this.ships.find((ship) => {
-      return ship.stringCoordinates.includes(coordinates.join(''));
+      return ship.stringCoordinates.includes(hitCoordinates.join(''));
     })
   }
 
   isShipWrecked = (ship: Ship) => {
-    return ship.stringCoordinates.every((hitPoint) => this.shots.includes(hitPoint));
+    return ship.stringCoordinates
+      .every((hitPoint) => this.shots
+      .includes(hitPoint));
   }
 
   getWreckedShipArea = (coordinates: number[]) => {
     let ship = this.whatIsThisShip(coordinates);
-    if (ship && this.isShipWrecked(ship)) return ship;
+    if (ship && this.isShipWrecked(ship)) {
+      ship.isWrecked = true;
+      return ship;
+    };
     return undefined;
   }
 

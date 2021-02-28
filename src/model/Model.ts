@@ -9,8 +9,8 @@ type User = {
 }
 
 type Game = {
-  bestOf: number;
-  score: number[];
+  bestOf: number | undefined;
+  score: number[] | undefined;
   player1Field?: Field;
   player2Field?: Field;
 }
@@ -39,43 +39,47 @@ export default class Model {
     return DEFAULT_BEST_OF;
   }
 
-  get score() {
-    if (!!this.game) return this.game.score;
-    return INITIAL_SCORE;
+  set bestOf(value) {
+    if (!!this.game) this.game.bestOf = value;
   }
 
-  set score(value: number[]) {
-    if (!!this.game) this.game.score = value;
+  setScore = (index: number) => {
+    if (!!this.game?.score) this.game.score[(index + 1) % 2]++;
   }
 
   finishGame =() => {
-    if (this.isOver()) {
-      if (!!this.game) {
-        const [player1Score, player2Score] = this.game.score;
-        this.player1?.addGame(player1Score > player2Score);
-      }
-    }
+    const [player1Score, player2Score] = this.game?.score
+      ? this.game?.score
+      : INITIAL_SCORE;
+    this.player1?.addGame(player1Score > player2Score);
   }
 
-  isOver = () => {
-    if (!!this.game) return this.game.score.some((score) => {
-      if (!!this.game) return score === this.game.bestOf;
-      return true;
+  isGameOver = () => {
+    const scores = this.game?.score;
+    return scores?.some((score) => {
+      return score === this.game?.bestOf;
     });
   }
 
-  isAutoGameOver(field: Field, fields: Field[], index: number) {
-    return field.stringOccupiedCells.every((cell) => {
-      return fields[index].shots.some((shot) => {
-        return shot === cell;
-      })
-    })
+  isRoundOverGetWinner = (fields: (Field | undefined)[]) => {
+    const fieldIndex = fields?.findIndex((field) => field?.ships.every((ship) => ship.isWrecked));
+    if (fieldIndex === -1) return undefined;
+    return fieldIndex;
   }
 
-  newGame = (bestOf: number) => {
+  newRound = () => {
     this.game = {
-      bestOf,
-      score: [0, 0],
+      bestOf: this.game?.bestOf,
+      score: this.game?.score,
+      player1Field: new Field(),
+      player2Field: new Field(),
+    }
+  }
+
+  newGame = (bestOf?: number) => {
+    this.game = {
+      bestOf: bestOf ? bestOf : DEFAULT_BEST_OF,
+      score: INITIAL_SCORE,
       player1Field: new Field(),
       player2Field: new Field(),
     }

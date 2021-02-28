@@ -10,7 +10,7 @@ interface State {
 
 interface Props {
   side: string;
-  field: Array<number[]>;
+  field: Array<number[]> | undefined;
   onCellClick?: Function;
 }
 
@@ -30,7 +30,7 @@ export default class Battlefield extends Component<Props, State> {
         <Line position="top" />
         <Line position="left" />
         {
-          this.props.field.map((row, i) => {
+          this.props.field?.map((row, i) => {
             return (
               row.map((cell, j) => {
                 return <Cell value={cell}

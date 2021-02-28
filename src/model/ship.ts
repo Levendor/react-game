@@ -8,6 +8,7 @@ export default class Ship {
   stringCoordinates: string[];
   shipArea: Array<number[]>;
   stringShipArea: string[];
+  isWrecked: boolean;
 
   constructor(type: string, position: string, entryPoints: number[]) {
     this.type = type;
@@ -17,6 +18,7 @@ export default class Ship {
     this.stringCoordinates = this.coordinates.map((point => point.join('')));
     this.shipArea = this.getShipArea(position, entryPoints);
     this.stringShipArea = this.shipArea.map((point => point.join('')));
+    this.isWrecked = false;
   }
 
   isVertical(position: string) {

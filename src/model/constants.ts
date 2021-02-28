@@ -1,7 +1,8 @@
 const INITIAL_SHOT_BEFORE_LAST = 1;
 const MAX_NEARBY_CELLS = 4;
+const DEFAULT_PLAYER1_NAME: string = 'player 1';
 const DEFAULT_PLAYER2_NAME: string = 'computer';
-const DEFAULT_BEST_OF: number = 1;
+const DEFAULT_BEST_OF: number = 2;
 const INITIAL_SCORE: number[] = [0, 0];
 const FIELD_SIZE: number = 10;
 const EMPTY_CELL = 0;
@@ -47,6 +48,7 @@ const HEADER_BUTTONS_TITLES: string[] = [
 export {
   INITIAL_SHOT_BEFORE_LAST,
   MAX_NEARBY_CELLS,
+  DEFAULT_PLAYER1_NAME,
   DEFAULT_PLAYER2_NAME,
   DEFAULT_BEST_OF,
   INITIAL_SCORE,

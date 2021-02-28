@@ -5,25 +5,26 @@ import Header from '../header';
 import ScoreLine from '../score-line';
 import MovesCounter from '../moves-counter';
 
-import { FIELD_SIZE, INITIAL_SHOT_BEFORE_LAST } from '../../model//constants';
-import Field from '../../model/Field';
+
+import { DEFAULT_PLAYER1_NAME } from '../../model/constants';
 import Model from '../../model/Model';
+import Field from '../../model/Field';
 
 import './App.scss';
 
 const model = new Model();
-
-let player1Field = new Field();
-let player2Field = new Field();
+model.init();
 
 interface Props {
 }
 
 interface State {
-  user1Name: string;
-  player1Field: Array<number[]>;
+  bestOf: number | undefined;
+  score: number[] | undefined;
+  user1Name: string | undefined;
+  player1Field: Array<number[]> | undefined;
   user2Name: string;
-  player2Field: Array<number[]>;
+  player2Field: Array<number[]> | undefined;
   disabledApp: boolean;
   isAutoGame: boolean;
 }
@@ -32,32 +33,46 @@ export default class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      user1Name: '123456789012',
-      player1Field: player1Field.field,
-      user2Name: 'computer',
-      player2Field: player1Field.field,
+      bestOf: model.game?.bestOf,
+      score: model.game?.score,
+      user1Name: model.player1?.name,
+      player1Field: model.game?.player1Field?.field,
+      user2Name: model.player2,
+      player2Field: model.game?.player2Field?.field,
       disabledApp: false,
       isAutoGame: false,
     }
   }
 
   newGame = () => {
-    player1Field = new Field();
-    player2Field = new Field();
+    model.newGame();
 
     this.setState({
       disabledApp: false,
       isAutoGame: false,
-      player1Field: player1Field.field,
-      player2Field: player1Field.field,
+      bestOf: model.game?.bestOf,
+      score: model.game?.score,
+      player1Field: model.game?.player1Field?.field,
+      player2Field: model.game?.player2Field?.field,
+    });
+  }
+
+  newRound = () => {
+    model.newRound();
+
+    this.setState({
+      disabledApp: false,
+      isAutoGame: false,
+      bestOf: model.game?.bestOf,
+      score: model.game?.score,
+      player1Field: model.game?.player1Field?.field,
+      player2Field: model.game?.player2Field?.field,
     });
   }
 
   autoGame = (index: number) => {
-    const fields = [player1Field, player2Field];
-    if (fields.some((field) => {
-      return model.isAutoGameOver(field, fields, index)
-    })) {
+    const fields = [model.game?.player1Field, model.game?.player2Field];
+    if (model.isRoundOverGetWinner(fields) !== undefined) {
       this.setState({ disabledApp: false })
       return;
     };
@@ -68,38 +83,36 @@ export default class App extends Component<Props, State> {
      })
     
     if (index) {
-      const comp1Strike = () => {
-        const comp1Coordinate = aiming(fields[index]);
-        this.setState({ 
-          player2Field: fields[index].shot(comp1Coordinate),
-        });
-        const enemyHit = player2Field.isHit(comp1Coordinate.join(''));
-        if (enemyHit) setTimeout(() => comp1Strike(), 50);
-      }
-      comp1Strike();
-    } else { 
-      const comp2Strike = () => {
-        const comp2Coordinate = aiming(fields[index]);
-        this.setState({ 
-          player1Field: fields[index].shot(comp2Coordinate),
-        });
-        const enemyHit = player1Field.isHit(comp2Coordinate.join(''));
-        if (enemyHit) setTimeout(() => comp2Strike(), 50);
-      }
-      comp2Strike();
+      this.compStrike('player2Field', fields, index);
+    } else {
+      this.compStrike('player1Field', fields, index);
     }
+  }
 
-    setTimeout(() => this.autoGame((index + 1) % 2), 50);
+  compStrike = (fieldName: string, fields: (Field | undefined)[], index: number) => {
+    const compCoordinate = fields[index]?.aiming();
+    const compPoint = compCoordinate?.join('');
+    const newField = fields[index]?.shot(compCoordinate);
+    this.setState<never>({ 
+      [fieldName]: newField,
+    });
+    const enemyHit = model.game?.player1Field?.isHit(compPoint);
+    if (enemyHit) {
+      setTimeout(() => this.autoGame(index), 50);
+    } else {
+      setTimeout(() => this.autoGame((index + 1) % 2), 50);
+    }
   }
 
   blowsExchange = (coordinates: number[]) => {
+    const newField = model.game?.player2Field?.shot(coordinates);
     this.setState({
-      player2Field: player2Field.shot(coordinates),
+      player2Field: newField,
       disabledApp: true,
     });
-    const ship = player2Field.whatIsThisShip(coordinates);
+    const ship = model.game?.player2Field?.whatIsThisShip(coordinates);
     const isShipDestroyed = ship
-      ? player2Field.isShipWrecked(ship)
+      ? model.game?.player2Field?.isShipWrecked(ship)
       : undefined;
     console.log(
       'твой ход:',
@@ -109,6 +122,17 @@ export default class App extends Component<Props, State> {
           : 'попал')
         : 'мимо'
     );
+    const fields = [model.game?.player1Field, model.game?.player2Field];
+    const fieldIndex = model.isRoundOverGetWinner(fields);
+    if (fieldIndex !== undefined) {
+      model.setScore(fieldIndex);
+      console.log('Вы выиграли этот раунд!');
+      if (model.isGameOver()) {
+        console.log('Победа! Игра окончена!');
+        model.finishGame();
+      } else setTimeout(this.newRound, 5000);
+      return;
+    }
     if (ship) {
       this.setState({ 
         disabledApp: false,
@@ -119,15 +143,27 @@ export default class App extends Component<Props, State> {
   }
 
   enemyStrike() {
-    const strikeBack = aiming(player1Field);
+    const fields = [model.game?.player1Field, model.game?.player2Field];
+    const fieldIndex = model.isRoundOverGetWinner(fields);
+    if (fieldIndex !== undefined) {
+      model.setScore(fieldIndex);
+      console.log('Компьютер выиграл этот раунд');
+      if (model.isGameOver()) {
+        console.log('Игра окончена! Вы проиграли');
+        model.finishGame();
+      } else setTimeout(this.newRound, 5000);
+      return;
+    }
     setTimeout(() => {
+      const strikeBack = model.game?.player1Field?.aiming();
+      const newField = model.game?.player1Field?.shot(strikeBack);
       this.setState({ 
-        player1Field: player1Field.shot(strikeBack),
+        player1Field: newField,
         disabledApp: false,
       });
-      const ship = player1Field.whatIsThisShip(strikeBack);
+      const ship = model.game?.player1Field?.whatIsThisShip(strikeBack);
       const isShipDestroyed = ship
-        ? player1Field.isShipWrecked(ship)
+        ? model.game?.player1Field?.isShipWrecked(ship)
         : undefined;
       console.log(
         'ход компьютера:',
@@ -142,10 +178,15 @@ export default class App extends Component<Props, State> {
   }
 
   render() {
-    const { user1Name, user2Name, disabledApp, isAutoGame } = this.state;
+    const { /*user1Name,*/ user2Name, disabledApp, isAutoGame } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame ? "disabled" : "";
     const battlefield2Side = isAutoGame ? "friend" : "foe";
+    const player1Title = isAutoGame ? "компа 1:" : "твоих:";
+    const player2Title = isAutoGame ? "компа 2:" : "компа:";
+
+    const user1Name = DEFAULT_PLAYER1_NAME;
+
     return (
       <div className={`app ${appClass}`}>
         <Header callbacks={[
@@ -155,12 +196,16 @@ export default class App extends Component<Props, State> {
             () => this.autoGame(0),
             console.log,
           ]} />
-        <ScoreLine bestOf={3} score={[1, 2]} players={[user1Name, user2Name]}/>
+        <ScoreLine bestOf={model.game?.bestOf}
+                   score={model.game?.score}
+                   players={[user1Name, user2Name]}/>
         <div className={`battlefield-container border ${fieldClass}`}>
           <Battlefield side="friend"
                        field={this.state.player1Field} />
-          <MovesCounter player1Counter={player2Field.shots.length}
-                        player2Counter={player1Field.shots.length} />
+          <MovesCounter player1Counter={model.game?.player2Field?.shots.length}
+                        player2Counter={model.game?.player1Field?.shots.length}
+                        player1Title={player1Title}
+                        player2Title={player2Title} />
           <Battlefield side={battlefield2Side}
                        field={this.state.player2Field}
                        onCellClick={this.blowsExchange} />
@@ -169,21 +214,4 @@ export default class App extends Component<Props, State> {
       </div>
     );
   }
-}
-
-const aiming = (field: Field) => {
-  let point: number[];
-  const targets = field.checkCellsNearby(INITIAL_SHOT_BEFORE_LAST);
-  const length = targets.length;
-  do {
-    if (length) {
-      point = targets[Math.floor(Math.random() * length)];
-    } else {
-      point = [
-      Math.floor(Math.random() * FIELD_SIZE),
-      Math.floor(Math.random() * FIELD_SIZE),
-    ];
-  }
-  } while (field.targeting(point));
-  return point;
 }
