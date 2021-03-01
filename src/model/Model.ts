@@ -1,11 +1,12 @@
 import Field from './Field';
 import { another } from './Utils';
-import { DEFAULT_BEST_OF, INITIAL_SCORE, DEFAULT_PLAYER2_NAME, DEFAULT_PLAYER1_NAME } from './constants';
+import { DEFAULT_BEST_OF, INITIAL_SCORE, DEFAULT_PLAYER2_NAME, DEFAULT_PLAYER1_NAME, DEFAULT_DIFFICULTY_LEVEL } from './constants';
 
 type User = {
   name: string;
   games: number;
   gamesWon: number;
+  difficultyLevel: number;
   addGame(isWin: boolean): void
 }
 
@@ -112,6 +113,7 @@ export default class Model {
       name: name ? name : DEFAULT_PLAYER1_NAME,
       games: 0,
       gamesWon: 0,
+      difficultyLevel: DEFAULT_DIFFICULTY_LEVEL,
 
       addGame(isWin: boolean) {
         this.games += 1;
@@ -172,5 +174,9 @@ export default class Model {
   getUserFromUsersStorage = (storage: User[], userName: string): User | undefined => {
     const existedUser = storage.find((user: User) => user.name === userName);
     return existedUser;
+  }
+
+  changeDifficultyLevel = (value: number) => {
+    this.player1.difficultyLevel = value;
   }
 }
