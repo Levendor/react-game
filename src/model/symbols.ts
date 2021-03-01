@@ -1,5 +1,5 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { faSync, faChartLine, faTools, faRobot, faUserFriends, faCircle, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faSync, faChartLine, faTools, faRobot, faUserFriends, faCircle, faTimes, faCheck, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 import { faSquare } from '@fortawesome/free-regular-svg-icons';
 
 const SYMBOLS: {
@@ -8,12 +8,14 @@ const SYMBOLS: {
   CROSS: IconProp,
   SQUARE: IconProp,
   OK: IconProp,
+  USER: IconProp,
 } = {
   HEADER_BUTTONS_SYMBOLS: [faSync, faChartLine, faTools, faRobot, faUserFriends],
   DOT: faCircle,
   CROSS: faTimes,
   SQUARE: faSquare,
   OK: faCheck,
+  USER: faUserCheck,
 }
 
 export default SYMBOLS;

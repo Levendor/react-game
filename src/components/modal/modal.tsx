@@ -4,40 +4,61 @@ import SYMBOLS from '../../model/symbols';
 
 import Statistics from './statistics';
 import Settings from './settings';
+import ChangeUser from './change-user';
 
 import './modal.scss';
 
 interface Props {
   modalWindow: string,
-  onButtonClick: Function,
+  onCloseButtonClick: Function,
   userName: string,
   gamesTotal: number,
   gamesWon: number,
   difficultLevel: number;
   onDifficultyChange: Function;
+  bestOfValue: number;
+  onBestOfChange: Function;
+  audioValue: number;
+  onAudioChange: Function;
+  musicValue: number;
+  onMusicChange: Function;
+  themeValue: number;
+  onThemeChange: Function;
+  userList: string[];
+  onUserButtonClick: Function;
 }
 
 export default class Modal extends Component<Props> {
 
   getComponent = (component: string) => {
-    const { userName, gamesTotal, gamesWon, onDifficultyChange, difficultLevel } = this.props;
+    const { userName, gamesTotal, gamesWon, onDifficultyChange, difficultLevel, bestOfValue, onBestOfChange, audioValue, onAudioChange, musicValue, onMusicChange, themeValue, onThemeChange, userList, onUserButtonClick } = this.props;
     switch(component) {
       case 'Statistics':
         return <Statistics userName={userName}
                            gamesTotal={gamesTotal}
                            gamesWon={gamesWon} />;
       case 'Settings':
-        return <Settings level={difficultLevel} 
-                         onDifficultyChange={onDifficultyChange} />;
-      case 'ChangeUser':
-        return '' // <ChangeUser />;
+        return <Settings difficultyValue={difficultLevel} 
+                         onDifficultyChange={onDifficultyChange}
+                         bestOfValue={bestOfValue}
+                         onBestOfChange={onBestOfChange}
+                         audioValue={audioValue}
+                         onAudioChange={onAudioChange}
+                         musicValue={musicValue}
+                         onMusicChange={onMusicChange}
+                         themeValue={themeValue}
+                         onThemeChange={onThemeChange} />;
+      case 'Change User':
+        return <ChangeUser userName={userName}
+                           userList={userList}
+                           onUserButtonClick={onUserButtonClick} />;
       default:
         return ';'
     }
   }
 
   render() {
-    const { modalWindow, onButtonClick } = this.props;
+    const { modalWindow, onCloseButtonClick } = this.props;
     const className = modalWindow ? "modal border" : "modal border hidden";
     const ModalComponent = this.getComponent(modalWindow);
     return (
@@ -46,7 +67,7 @@ export default class Modal extends Component<Props> {
         {ModalComponent}
         <button className="modal-button"
                 type="button"
-                onClick={() => onButtonClick()}>
+                onClick={() => onCloseButtonClick()}>
                   <FontAwesomeIcon icon={SYMBOLS.OK} size="lg" />
                 </button>
       </div>

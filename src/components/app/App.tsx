@@ -7,7 +7,7 @@ import MovesCounter from '../moves-counter';
 import Modal from '../modal';
 
 
-import { AUTO_GAME_TIME_STEP, GAME_TIME_STEP, TIME_BEFORE_NEW_ROUND } from '../../model/constants';
+import { AUTO_GAME_TIME_STEP, GAME_TIME_STEP, TIME_BEFORE_NEW_ROUND, DEFAULT_AUDIO_VALUE, DEFAULT_MUSIC_VALUE, DEFAULT_THEME_VALUE } from '../../model/constants';
 import { another } from '../../model/Utils';
 import Model from '../../model/Model';
 import Field from '../../model/Field';
@@ -20,6 +20,7 @@ interface Props {
 
 interface State {
   bestOf: number;
+  currentBestOf: number;
   score: number[];
   user1Name: string;
   player1GamesTotal: number;
@@ -31,6 +32,9 @@ interface State {
   player2Field: Array<number[]>;
   player2Moves: number;
   modalWindow: string;
+  audioValue: number;
+  musicValue: number;
+  themeValue: number;
   disabledApp: boolean;
   disabledField: boolean;
   isAutoGame: boolean;
@@ -40,7 +44,8 @@ export default class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      bestOf: this.props.model.game.bestOf,
+      bestOf: this.props.model.bestOf,
+      currentBestOf: this.props.model.game.bestOf,
       score: this.props.model.game.score,
       user1Name: this.props.model.player1.name,
       player1GamesTotal: this.props.model.player1.games,
@@ -52,20 +57,25 @@ export default class App extends Component<Props, State> {
       player2Field: this.props.model.game.player2Field.field,
       player2Moves: this.props.model.game.player2Field.shots.length,
       modalWindow: '',
+      audioValue: DEFAULT_AUDIO_VALUE,
+      musicValue: DEFAULT_MUSIC_VALUE,
+      themeValue: DEFAULT_THEME_VALUE,
       disabledApp: false,
       disabledField: false,
       isAutoGame: false,
     }
   }
 
-  newGame = () => {
-    const game = this.props.model.newGame();
+  newGame = (userName?: string) => {
+    const game = userName
+      ? this.props.model.start(userName)
+      : this.props.model.newGame();
 
     this.setState({
       disabledApp: false,
       disabledField: false,
       isAutoGame: false,
-      bestOf: game.bestOf,
+      currentBestOf: game.bestOf,
       score: game.score,
       player1Field: game.player1Field.field,
       player1Moves: this.props.model.game.player1Field.shots.length,
@@ -81,7 +91,7 @@ export default class App extends Component<Props, State> {
       disabledApp: false,
       disabledField: false,
       isAutoGame: false,
-      bestOf: this.props.model.game.bestOf,
+      currentBestOf: this.props.model.game.bestOf,
       score: this.props.model.game.score,
       player1Field: this.props.model.game.player1Field.field,
       player1Moves: this.props.model.game.player1Field.shots.length,
@@ -230,10 +240,54 @@ export default class App extends Component<Props, State> {
     })
   }
 
+  onBestOfChange = (value: number) => {
+    this.props.model.setBestOf(value);
+    const newBestOf = this.props.model.bestOf;
+    this.setState({
+      bestOf: newBestOf,
+    })
+  }
+
+  onAudioChange = (value: number) => {
+    this.setState({
+      audioValue: value,
+    })
+  }
+
+  onMusicChange = (value: number) => {
+    this.setState({
+      musicValue: value,
+    })
+  }
+
+  onThemeChange = (value: number) => {
+    this.setState({
+      themeValue: value,
+    })
+  }
+
   openChangeUser = () => {
     this.setState({
       modalWindow: 'Change User',
     });
+  }
+
+  getUserList = () => {
+    return this.props.model.users.map((user) => {
+      return user.name;
+    })
+  }
+
+  newUser = (userName: string) => {
+    this.props.model.newUser(userName);
+    const {name, games, gamesWon } = this.props.model.player1
+    this.setState({
+      user1Name: name,
+      player1GamesTotal: games,
+      player1GamesWon: gamesWon,
+    })
+
+    this.newGame(userName);
   }
 
   closeModal = () => {
@@ -243,7 +297,7 @@ export default class App extends Component<Props, State> {
   }
 
   render() {
-    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, score, modalWindow, difficultyLevel } = this.state;
+    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame || disabledField ? "disabled" : "";
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
@@ -252,12 +306,22 @@ export default class App extends Component<Props, State> {
     return (
       <div className={`app ${appClass}`}>
         <Modal modalWindow={modalWindow}
-               onButtonClick={this.closeModal}
+               onCloseButtonClick={this.closeModal}
                userName={user1Name}
                gamesTotal={player1GamesTotal}
                gamesWon={player1GamesWon}
                difficultLevel={difficultyLevel}
-               onDifficultyChange={this.onDifficultyChange} />;
+               onDifficultyChange={this.onDifficultyChange}
+               bestOfValue={bestOf}
+               onBestOfChange={this.onBestOfChange}
+               audioValue={audioValue}
+               onAudioChange={this.onAudioChange}
+               musicValue={musicValue}
+               onMusicChange={this.onMusicChange}
+               themeValue={themeValue}
+               onThemeChange={this.onThemeChange}
+               userList={this.getUserList()}
+               onUserButtonClick={this.newUser} />;
         <Header callbacks={[
             this.newGame,
             this.openStatistics,
@@ -265,7 +329,7 @@ export default class App extends Component<Props, State> {
             () => {this.newGame(); this.autoGame(0);},
             this.openChangeUser,
           ]} />
-        <ScoreLine bestOf={bestOf}
+        <ScoreLine bestOf={currentBestOf}
                    score={score}
                    players={[user1Name, user2Name]}/>
         <div className={`battlefield-container border ${fieldClass}`}>

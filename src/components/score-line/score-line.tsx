@@ -16,7 +16,7 @@ interface Props {
 
 export default class ScoreLine extends Component<Props> {
   render() {
-    const { bestOf, score } = this.props
+    const { bestOf, score } = this.props;
     const [player1Score, player2Score] = score ? score : [];
     const starArr1 = new Array(bestOf)
       .fill(fullStar, 0, player1Score)

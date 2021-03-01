@@ -1,5 +1,5 @@
 import Field from './Field';
-import { another } from './Utils';
+import { another, compare } from './Utils';
 import { DEFAULT_BEST_OF, INITIAL_SCORE, DEFAULT_PLAYER2_NAME, DEFAULT_PLAYER1_NAME, DEFAULT_DIFFICULTY_LEVEL } from './constants';
 
 type User = {
@@ -18,36 +18,38 @@ type Game = {
 }
 
 export default class Model {
+  users: User[];
   game: Game;
+  bestOf: number;
   player1: User;
   player2: string;
 
   constructor() {
     const currentUserName = this.loadCurrentUserName();
-    this.game = currentUserName 
-    ? this.start(currentUserName)
-    : this.start();
+    this.users = this.getUsersStorage();
+    this.bestOf = DEFAULT_BEST_OF;
     this.player1 = currentUserName
       ? this.newUser(currentUserName)
       : this.newUser();
+    this.game = currentUserName 
+    ? this.start(currentUserName)
+    : this.start();
     this.player2 = DEFAULT_PLAYER2_NAME;
   }
 
   start = (userName?: string) => {
-    const savedGame = localStorage.getItem(`levendor-react-game-${userName}`);
+    const savedGame = userName 
+      ? this.getGameFromStorage(userName)
+      : undefined;
 
     const game = savedGame
       ? this.loadGame(JSON.parse(savedGame))
-      : this.newGame(DEFAULT_BEST_OF);
+      : this.newGame();
     return game;
   }
 
-  get bestOf() {
-    return this.game.bestOf;
-  }
-
-  set bestOf(value) {
-    this.game.bestOf = value;
+  setBestOf = (value: number) => {
+    this.bestOf = value;
   }
 
   setScore = (index: number) => {
@@ -57,6 +59,7 @@ export default class Model {
   finishGame =() => {
     const [player1Score, player2Score] = this.game.score;
     this.player1.addGame(player1Score > player2Score);
+    this.saveUserStatistics();
   }
 
   isGameOver = () => {
@@ -81,9 +84,9 @@ export default class Model {
     }
   }
 
-  newGame = (bestOf?: number) => {
+  newGame = () => {
     const game = {
-      bestOf: bestOf ? bestOf : DEFAULT_BEST_OF,
+      bestOf: this.bestOf,
       score: INITIAL_SCORE,
       player1Field: new Field(),
       player2Field: new Field(),
@@ -98,6 +101,10 @@ export default class Model {
     localStorage.setItem(`levendor-react-game-${this.player1.name}`, stringGame);
   }
 
+  getGameFromStorage = (userName: string) => {
+    return localStorage.getItem(`levendor-react-game-${userName}`);
+  }
+
   loadGame = (loadedGame: Game) => {
     const game = {
       bestOf: loadedGame.bestOf,
@@ -109,6 +116,8 @@ export default class Model {
   }
 
   newUser = (name?: string) => {
+    if (this.player1 && name === this.player1.name) return this.player1;
+
     const user = {
       name: name ? name : DEFAULT_PLAYER1_NAME,
       games: 0,
@@ -121,11 +130,10 @@ export default class Model {
       }
     }
 
-    const users = this.getUsersStorage();
-    const existedUser = this.getUserFromUsersStorage(users, user.name);
+    const existedUser = this.getUserFromUsersStorage(user.name);
   
     if (existedUser) Object.assign(user, existedUser);
-    else this.addUserToUsersStorage(users, user);
+    else this.addUserToUsersStorage(user);
 
     this.setUser(user.name);
 
@@ -140,25 +148,27 @@ export default class Model {
     return localStorage.getItem('levendor-react-game-user');
   }
 
-  addUserToUsersStorage = (storage: User[], user: User) => {
-    storage.push(user);
-    storage.sort((player1: User, player2: User) => player2.gamesWon - player1.gamesWon);
+  addUserToUsersStorage = (user: User) => {
+    this.users.push(user);
+    this.users.sort((player1: User, player2: User) => {
+      return compare(player1.gamesWon, player2.gamesWon, 'descending');
+    });
 
-    localStorage.setItem('levendor-react-game-users', JSON.stringify(storage));
+    localStorage.setItem('levendor-react-game-users', JSON.stringify(this.users));
   }
 
   saveUserStatistics = () => {
-    const users = this.getUsersStorage();
-    const existedUserIndex = this.getUserIndexFromUsersStorage(users, this.player1.name);
+    const existedUserIndex = this.getUserIndexFromUsersStorage(this.player1.name);
   
     if (existedUserIndex > -1) {
-      users[existedUserIndex] = this.player1;
-      users.sort((player1: User, player2: User) => player2.gamesWon - player1.gamesWon);
+      Object.assign(this.users[existedUserIndex], this.player1);
+      this.users.sort((player1: User, player2: User) => {
+        return compare(player1.gamesWon, player2.gamesWon, 'descending');
+      });
     }
-
   }
 
-  getUsersStorage = () => {
+  getUsersStorage = (): User[] => {
     const loadedUsers = localStorage.getItem('levendor-react-game-users');
     const users = loadedUsers
       ? JSON.parse(loadedUsers)
@@ -166,14 +176,12 @@ export default class Model {
     return users;
   }
 
-  getUserIndexFromUsersStorage = (storage: User[], userName: string): number => {
-    const existedUserIndex = storage.findIndex((user: User) => user.name === userName);
-    return existedUserIndex;
+  getUserIndexFromUsersStorage = (userName: string): number => {
+    return this.users.findIndex((user: User) => user.name === userName);
   }
 
-  getUserFromUsersStorage = (storage: User[], userName: string): User | undefined => {
-    const existedUser = storage.find((user: User) => user.name === userName);
-    return existedUser;
+  getUserFromUsersStorage = (userName: string): User | undefined => {
+    return this.users.find((user: User) => user.name === userName);
   }
 
   changeDifficultyLevel = (value: number) => {
