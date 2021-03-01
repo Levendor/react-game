@@ -17,8 +17,8 @@ export default class Battlefield extends Component<Props> {
     const className = isAutoGame
       ? "battlefield disabled"
       : side === "foe"
-        ? "battlefield disabled"
-        : "battlefield";
+        ? "battlefield"
+        : "battlefield disabled";
     return (
       <div className={className} style={{gridArea: `${side}`}}>
         <Line position="top" />

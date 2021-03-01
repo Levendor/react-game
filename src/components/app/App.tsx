@@ -22,8 +22,11 @@ interface State {
   bestOf: number;
   score: number[];
   user1Name: string;
+  player1GamesTotal: number;
+  player1GamesWon: number;
   player1Field: Array<number[]>;
   player1Moves: number;
+  difficultyLevel: number;
   user2Name: string;
   player2Field: Array<number[]>;
   player2Moves: number;
@@ -40,8 +43,11 @@ export default class App extends Component<Props, State> {
       bestOf: this.props.model.game.bestOf,
       score: this.props.model.game.score,
       user1Name: this.props.model.player1.name,
+      player1GamesTotal: this.props.model.player1.games,
+      player1GamesWon: this.props.model.player1.gamesWon,
       player1Field: this.props.model.game.player1Field.field,
       player1Moves: this.props.model.game.player1Field.shots.length,
+      difficultyLevel: this.props.model.player1.difficultyLevel,
       user2Name: this.props.model.player2,
       player2Field: this.props.model.game.player2Field.field,
       player2Moves: this.props.model.game.player2Field.shots.length,
@@ -62,7 +68,9 @@ export default class App extends Component<Props, State> {
       bestOf: game.bestOf,
       score: game.score,
       player1Field: game.player1Field.field,
+      player1Moves: this.props.model.game.player1Field.shots.length,
       player2Field: game.player2Field.field,
+      player2Moves: this.props.model.game.player2Field.shots.length,
     });
   }
 
@@ -76,7 +84,9 @@ export default class App extends Component<Props, State> {
       bestOf: this.props.model.game.bestOf,
       score: this.props.model.game.score,
       player1Field: this.props.model.game.player1Field.field,
+      player1Moves: this.props.model.game.player1Field.shots.length,
       player2Field: this.props.model.game.player2Field.field,
+      player2Moves: this.props.model.game.player2Field.shots.length,
     });
   }
 
@@ -141,18 +151,9 @@ export default class App extends Component<Props, State> {
           : 'попал')
         : 'мимо'
     );
-    const fields = [this.props.model.game.player1Field, this.props.model.game.player2Field];
-    const fieldIndex = this.props.model.isRoundOverGetWinner(fields);
-    if (fieldIndex !== undefined) {
-      this.props.model.setScore(fieldIndex);
-      console.log('Ты выиграл этот раунд!');
-      if (this.props.model.isGameOver()) {
-        console.log('Победа! Игра окончена!');
-        this.setState({ disabledField: true });
-        this.props.model.finishGame();
-      } else setTimeout(this.newRound, TIME_BEFORE_NEW_ROUND);
-      return;
-    }
+
+    this.isWinGameOrRound(true);
+
     if (ship) {
       this.setState({ 
         disabledApp: false,
@@ -163,18 +164,7 @@ export default class App extends Component<Props, State> {
   }
 
   enemyStrike() {
-    const fields = [this.props.model.game.player1Field, this.props.model.game.player2Field];
-    const fieldIndex = this.props.model.isRoundOverGetWinner(fields);
-    if (fieldIndex !== undefined) {
-      this.props.model.setScore(fieldIndex);
-      console.log('Компьютер выиграл этот раунд');
-      if (this.props.model.isGameOver()) {
-        console.log('Игра окончена! Ты проиграл');
-        this.setState({ disabledField: true });
-        this.props.model.finishGame();
-      } else setTimeout(this.newRound, TIME_BEFORE_NEW_ROUND);
-      return;
-    }
+    this.isWinGameOrRound(true);
 
     setTimeout(() => {
       const strikeBack = this.props.model.game.player1Field.aiming();
@@ -183,7 +173,6 @@ export default class App extends Component<Props, State> {
       this.setState({ 
         player1Field: newField,
         player2Moves: moves,
-        disabledApp: false,
       });
       const ship = this.props.model.game.player1Field.whatIsThisShip(strikeBack);
       const isShipDestroyed = ship
@@ -199,7 +188,32 @@ export default class App extends Component<Props, State> {
       );
       this.props.model.saveGame();
       if (ship) this.enemyStrike();
+      else this.setState({ disabledApp: false });
     }, GAME_TIME_STEP);
+  }
+
+  isWinGameOrRound = (isWin: boolean) => {
+    const fields = [this.props.model.game.player1Field, this.props.model.game.player2Field];
+    const fieldIndex = this.props.model.isRoundOverGetWinner(fields);
+    if (fieldIndex !== undefined) {
+      this.props.model.setScore(fieldIndex);
+      console.log(isWin ? 'Ты выиграл этот раунд!' : 'Компьютер выиграл этот раунд');
+      if (this.props.model.isGameOver()) {
+        console.log(isWin ? 'Победа! Игра окончена!' : 'Игра окончена! Ты проиграл');
+        this.setState({
+          disabledField: true,
+          disabledApp: false
+        });
+        this.props.model.finishGame();
+      } else setTimeout(this.newRound, TIME_BEFORE_NEW_ROUND);
+      return;
+    }
+  }
+
+  openStatistics = () => {
+    this.setState({
+      modalWindow: 'Statistics',
+    });
   }
 
   openSettings = () => {
@@ -208,10 +222,12 @@ export default class App extends Component<Props, State> {
     });
   }
 
-  openStatistics = () => {
+  onDifficultyChange = (value: number) => {
+    this.props.model.changeDifficultyLevel(value);
+    const newLevel = this.props.model.player1.difficultyLevel;
     this.setState({
-      modalWindow: 'Statistics',
-    });
+      difficultyLevel: newLevel,
+    })
   }
 
   openChangeUser = () => {
@@ -227,7 +243,7 @@ export default class App extends Component<Props, State> {
   }
 
   render() {
-    const { user1Name, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, score, modalWindow } = this.state;
+    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, score, modalWindow, difficultyLevel } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame || disabledField ? "disabled" : "";
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
@@ -236,7 +252,12 @@ export default class App extends Component<Props, State> {
     return (
       <div className={`app ${appClass}`}>
         <Modal modalWindow={modalWindow}
-               onButtonClick={this.closeModal} />
+               onButtonClick={this.closeModal}
+               userName={user1Name}
+               gamesTotal={player1GamesTotal}
+               gamesWon={player1GamesWon}
+               difficultLevel={difficultyLevel}
+               onDifficultyChange={this.onDifficultyChange} />;
         <Header callbacks={[
             this.newGame,
             this.openStatistics,
