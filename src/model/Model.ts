@@ -137,6 +137,7 @@ export default class Model {
 
     this.setUser(user.name);
 
+    this.player1 = user;
     return user;
   }
 

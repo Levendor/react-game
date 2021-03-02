@@ -33,11 +33,11 @@ export default class Settings extends Component<Props> {
   getAudioLabel = (value: number) => {
     const str = `${value}`;
     switch(str) {
-      case '1':
+      case '0':
         return 'Mute';
-      case '2':
+      case '0.5':
         return 'Quiet';
-      case '3':
+      case '1':
         return 'Normal';
       default:
         return '';
@@ -133,14 +133,14 @@ export default class Settings extends Component<Props> {
                 type="range" 
                 value={audioValue}
                 onChange={this.onAudioChange}
-                min="1"
-                max="3"
-                step="1"
+                min="0"
+                max="1"
+                step="0.5"
                 list="audioList" />
           <datalist id="audioList">
+            <option value="0"/>
+            <option value="0.5"/>
             <option value="1"/>
-            <option value="2"/>
-            <option value="3"/>
           </datalist>
         </div>
 
@@ -153,14 +153,14 @@ export default class Settings extends Component<Props> {
                 type="range" 
                 value={musicValue}
                 onChange={this.onMusicChange}
-                min="1"
-                max="3"
-                step="1"
+                min="0"
+                max="1"
+                step="0.5"
                 list="musicList" />
           <datalist id="musicList">
+            <option value="0"/>
+            <option value="0.5"/>
             <option value="1"/>
-            <option value="2"/>
-            <option value="3"/>
           </datalist>
         </div>
 

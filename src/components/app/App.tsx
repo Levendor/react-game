@@ -7,12 +7,14 @@ import MovesCounter from '../moves-counter';
 import Modal from '../modal';
 
 
-import { AUTO_GAME_TIME_STEP, GAME_TIME_STEP, TIME_BEFORE_NEW_ROUND, DEFAULT_AUDIO_VALUE, DEFAULT_MUSIC_VALUE, DEFAULT_THEME_VALUE } from '../../model/constants';
+import { AUTO_GAME_TIME_STEP, GAME_TIME_STEP, SOUND_DELAY, CRUSH_SOUND_DELAY, TIME_BEFORE_NEW_ROUND, DEFAULT_AUDIO_VALUE, DEFAULT_MUSIC_VALUE, DEFAULT_THEME_VALUE } from '../../model/constants';
+import * as SOUNDS from '../../model/sounds';
 import { another } from '../../model/Utils';
 import Model from '../../model/Model';
 import Field from '../../model/Field';
 
 import './App.scss';
+import Music from '../music';
 
 interface Props {
   model: Model;
@@ -41,6 +43,12 @@ interface State {
 }
 
 export default class App extends Component<Props, State> {
+  crushSounds: string[];
+  hitSounds: string[];
+  missSounds: string[];
+  shotSounds: string[];
+  music: string;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -64,6 +72,15 @@ export default class App extends Component<Props, State> {
       disabledField: false,
       isAutoGame: false,
     }
+    this.crushSounds = [SOUNDS.crush1];
+    this.hitSounds = [SOUNDS.hit1, SOUNDS.hit2];
+    this.missSounds = [SOUNDS.miss1, SOUNDS.miss2, SOUNDS.miss3, SOUNDS.miss4];
+    this.shotSounds = [SOUNDS.shot1, SOUNDS.shot2, SOUNDS.shot3, SOUNDS.shot4, SOUNDS.shot5];
+    this.music = SOUNDS.music;
+    const music = new Audio(this.music);
+    music.volume = this.state.musicValue;
+    music.loop = true;
+    music.play();
   }
 
   newGame = (userName?: string) => {
@@ -123,6 +140,7 @@ export default class App extends Component<Props, State> {
   }
 
   compStrike = (player: string, field: Field, index: number) => {
+    this.playSound(this.shotSounds);
     const compCoordinate = field.aiming();
     const compPoint = compCoordinate.join('');
     const newField = field.shot(compCoordinate);
@@ -135,13 +153,20 @@ export default class App extends Component<Props, State> {
     });
     const enemyHit = field.isHit(compPoint);
     if (enemyHit) {
-      setTimeout(() => this.autoGame(index), AUTO_GAME_TIME_STEP);
+      setTimeout(() => {
+        setTimeout(() => this.playSound(this.hitSounds), SOUND_DELAY);
+        this.autoGame(index);
+      }, AUTO_GAME_TIME_STEP);
     } else {
-      setTimeout(() => this.autoGame(another(index)), AUTO_GAME_TIME_STEP);
+      setTimeout(() => {
+        setTimeout(() => this.playSound(this.missSounds), SOUND_DELAY);
+        this.autoGame(another(index));
+      }, AUTO_GAME_TIME_STEP);
     }
   }
 
   blowsExchange = (coordinates: number[]) => {
+    this.playSound(this.shotSounds);
     const newField = this.props.model.game.player2Field.shot(coordinates);
     const moves = this.props.model.game.player2Field.shots.length;
     this.setState({
@@ -165,10 +190,15 @@ export default class App extends Component<Props, State> {
     this.isWinGameOrRound(true);
 
     if (ship) {
+      setTimeout(() => {
+        this.playSound(this.hitSounds);
+        if (ship.isWrecked) setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+      }, SOUND_DELAY);
       this.setState({ 
         disabledApp: false,
       });
     } else {
+      setTimeout(() => this.playSound(this.missSounds), SOUND_DELAY);
       this.enemyStrike();
     }
   }
@@ -177,6 +207,7 @@ export default class App extends Component<Props, State> {
     this.isWinGameOrRound(true);
 
     setTimeout(() => {
+      this.playSound(this.shotSounds);
       const strikeBack = this.props.model.game.player1Field.aiming();
       const newField = this.props.model.game.player1Field.shot(strikeBack);
       const moves = this.props.model.game.player1Field.shots.length;
@@ -197,8 +228,16 @@ export default class App extends Component<Props, State> {
           : 'мимо'
       );
       this.props.model.saveGame();
-      if (ship) this.enemyStrike();
-      else this.setState({ disabledApp: false });
+      if (ship) {
+        setTimeout(() => {
+          this.playSound(this.hitSounds);
+          if (ship.isWrecked) setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+        }, SOUND_DELAY);
+        this.enemyStrike();
+      } else {
+        setTimeout(() => this.playSound(this.missSounds), SOUND_DELAY);
+        this.setState({ disabledApp: false });
+      }
     }, GAME_TIME_STEP);
   }
 
@@ -280,7 +319,7 @@ export default class App extends Component<Props, State> {
 
   newUser = (userName: string) => {
     this.props.model.newUser(userName);
-    const {name, games, gamesWon } = this.props.model.player1
+    const {name, games, gamesWon } = this.props.model.player1;
     this.setState({
       user1Name: name,
       player1GamesTotal: games,
@@ -296,6 +335,13 @@ export default class App extends Component<Props, State> {
     });
   }
 
+  playSound = (soundArray: string[]) => {
+    const soundIndex = Math.floor(Math.random() * soundArray.length);
+    const sound = new Audio(soundArray[soundIndex]);
+    sound.volume = this.state.audioValue;
+    sound.play();
+  }
+
   render() {
     const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue } = this.state;
     const appClass = disabledApp ? "disabled" : "";
@@ -303,8 +349,11 @@ export default class App extends Component<Props, State> {
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
     const player2Title = isAutoGame ? "компа 2:" : "компа:";
 
+    const music = this.music;
+
     return (
       <div className={`app ${appClass}`}>
+        <Music musicSrc={music} volume={musicValue} />
         <Modal modalWindow={modalWindow}
                onCloseButtonClick={this.closeModal}
                userName={user1Name}
