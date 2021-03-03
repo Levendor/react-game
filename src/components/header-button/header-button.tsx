@@ -31,7 +31,6 @@ export default class HeaderButton extends Component<Props> {
   }
 
   componentDidMount = () => {
-    console.log(this.props.title)
     document.addEventListener('keypress', (event) => {
       if (event.code === `Key${this.getProperLetter(this.props.title)}` && event.shiftKey === true) {
         this.props.onButtonClick();
@@ -49,7 +48,7 @@ export default class HeaderButton extends Component<Props> {
     return (
       <button
         id={this.props.title}
-        title={this.props.title}
+        title={`${this.props.title}: Shift + ${this.getProperLetter(this.props.title)}`}
         className={"header-button"}
         onClick={this.props.onButtonClick}
         type="button"
