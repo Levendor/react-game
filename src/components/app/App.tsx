@@ -14,6 +14,7 @@ import Model from '../../model/Model';
 import Field from '../../model/Field';
 
 import './App.scss';
+import Popup from '../modal/popup';
 
 interface Props {
   model: Model;
@@ -41,6 +42,7 @@ interface State {
   isAutoGame: boolean;
   musicStarted: boolean;
   isPlay: boolean;
+  popupText: string;
 }
 
 export default class App extends Component<Props, State> {
@@ -74,6 +76,7 @@ export default class App extends Component<Props, State> {
       isAutoGame: false,
       musicStarted: false,
       isPlay: false,
+      popupText: '',
     }
     this.crushSounds = [SOUNDS.crush1];
     this.hitSounds = [SOUNDS.hit1, SOUNDS.hit2];
@@ -176,30 +179,23 @@ export default class App extends Component<Props, State> {
       disabledApp: true,
     });
     const ship = this.props.model.game.player2Field.whatIsThisShip(coordinates);
-    const isShipDestroyed = ship
-      ? this.props.model.game.player2Field.isShipWrecked(ship)
-      : undefined;
-    console.log(
-      'твой ход:',
-      ship
-        ? (isShipDestroyed
-          ? 'убил'
-          : 'попал')
-        : 'мимо'
-    );
-
     this.isWinGameOrRound(true);
-
     if (ship) {
       setTimeout(() => {
         this.playSound(this.hitSounds);
-        if (ship.isWrecked) setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+        if (ship.isWrecked) {
+          this.showPopup('Убил!');
+          setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+        } else this.showPopup('Попал');
       }, SOUND_DELAY);
       this.setState({ 
         disabledApp: false,
       });
     } else {
-      setTimeout(() => this.playSound(this.missSounds), SOUND_DELAY);
+      setTimeout(() => {
+        this.playSound(this.missSounds);
+        this.showPopup('Мимо');
+      }, SOUND_DELAY);
       this.enemyStrike();
     }
   }
@@ -213,30 +209,26 @@ export default class App extends Component<Props, State> {
       const newField = this.props.model.game.player1Field.shot(strikeBack);
       const moves = this.props.model.game.player1Field.shots.length;
       this.setState({ 
+        popupText: '',
         player1Field: newField,
         player2Moves: moves,
       });
       const ship = this.props.model.game.player1Field.whatIsThisShip(strikeBack);
-      const isShipDestroyed = ship
-        ? this.props.model.game.player1Field.isShipWrecked(ship)
-        : undefined;
-      console.log(
-        'ход компьютера:',
-        ship
-          ? (isShipDestroyed
-            ? 'убил'
-            : 'попал')
-          : 'мимо'
-      );
       this.props.model.saveGame();
       if (ship) {
         setTimeout(() => {
           this.playSound(this.hitSounds);
-          if (ship.isWrecked) setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+          if (ship.isWrecked) {
+            this.showPopup('Убил!');
+            setTimeout(() => this.playSound(this.crushSounds), CRUSH_SOUND_DELAY);
+          } else this.showPopup('Попал');
         }, SOUND_DELAY);
         this.enemyStrike();
       } else {
-        setTimeout(() => this.playSound(this.missSounds), SOUND_DELAY);
+        setTimeout(() => {
+          this.playSound(this.missSounds);
+          this.showPopup('Мимо');
+        }, SOUND_DELAY);
         this.setState({ disabledApp: false });
       }
     }, GAME_TIME_STEP);
@@ -368,8 +360,21 @@ export default class App extends Component<Props, State> {
     }
   }
 
+  showPopup = (text: string) => {
+    this.setState({
+      popupText: text,
+    })
+    setTimeout(this.hidePopup, 500);
+  }
+
+  hidePopup = () => {
+    this.setState({
+      popupText: '',
+    })
+  }
+
   render() {
-    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue, isPlay, } = this.state;
+    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue, isPlay, popupText } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame || disabledField ? "disabled" : "";
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
@@ -377,6 +382,7 @@ export default class App extends Component<Props, State> {
 
     return (
       <div className={`app ${appClass}`}>
+        <Popup text={popupText} />
         <Modal modalWindow={modalWindow}
                onCloseButtonClick={this.closeModal}
                userName={user1Name}

@@ -29,6 +29,7 @@ export default class Battlefield extends Component<Props> {
               row.map((cell, j) => {
                 return <Cell value={cell}
                              side={side}
+                             isAutoGame={isAutoGame}
                              coordinates={[i, j]}
                              onCellClick={onCellClick}
                              key={`${i}${j}`} />

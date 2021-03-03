@@ -10,16 +10,17 @@ interface Props {
   side: string;
   value: number;
   coordinates: number[];
+  isAutoGame?: boolean;
 }
 
 export default class Cell extends Component<Props> {  
   cellContent(cellValue: number) {
-    const { side } = this.props;
+    const { side, isAutoGame } = this.props;
     switch(cellValue) {
       case EMPTY_CELL:
         return '';
       case CELL_WITH_SHIP:
-        if (side === 'foe') return '';
+        if (side === 'foe' && !isAutoGame) return '';
         return <FontAwesomeIcon icon={SYMBOLS.SQUARE} size="4x" />;
       case HIT:
         return <FontAwesomeIcon icon={SYMBOLS.CROSS} size="4x" />;
