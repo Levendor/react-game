@@ -1,0 +1,17 @@
+.top-line {
+  display: grid;
+
+  grid-template-columns: repeat(11, 4rem);
+  grid-template-rows: 4rem;
+  grid-area: topLine;
+  column-gap: 0.1rem;
+}
+
+.left-line {
+  display: grid;
+
+  grid-template-rows: repeat(10, 4rem);
+  grid-template-columns: 4rem;
+  grid-area: leftLine;
+  row-gap: 0.1rem;
+}

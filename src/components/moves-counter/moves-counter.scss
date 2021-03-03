@@ -1,0 +1,38 @@
+.moves-counter {
+  display: flex;
+  min-width: 8rem;
+  min-height: 8rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  grid-area: movesCounter;
+
+  .moves-counter_container {
+    display: flex;
+    flex-direction: column;
+
+    @media screen and (max-width: 1300px) {
+      flex-direction: row;
+      column-gap: 2rem;
+    }
+  }
+
+  .moves-counter_container_small {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .moves-counter_title {
+    font-size: 2rem;
+  }
+
+  .moves-counter_text {
+    font-size: 1.5rem;
+  }
+
+  .moves-counter_numbers {
+    font-size: 3rem;
+  }
+}

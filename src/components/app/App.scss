@@ -1,0 +1,51 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: 0 auto;
+  min-width: 500px;
+  max-width: 1024px;
+  align-items: center;
+  justify-content: center;
+}
+
+.battlefield-container {
+  display: grid;
+  width: 100%;
+  grid-template-rows: 45rem;
+  grid-template-columns: 45rem auto 45rem;
+  padding: 0.5rem 1rem;
+  grid-template-areas: 'friend movesCounter foe';
+
+  .gap {
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+
+  @media screen and (max-width: 1200px) {
+    grid-template-rows: 8rem 45rem;
+    grid-template-columns: 45rem 45rem;
+    column-gap: 2rem;
+    justify-content: center;
+    grid-template-areas: 'movesCounter movesCounter'
+                         'friend foe';
+  }
+
+  @media screen and (max-width: 950px) {
+    grid-template-rows: 8rem 45rem 45rem;
+    grid-template-columns: 45rem;
+    row-gap: 1rem;
+    justify-content: center;
+    grid-template-areas: 'movesCounter'
+                         'foe'
+                         'friend';
+  }
+
+  &:fullscreen {
+    height: 100vw;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 45rem 10rem 45rem;
+    padding-top: 15%;
+  }
+}

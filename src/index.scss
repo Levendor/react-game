@@ -1,0 +1,41 @@
+@import 'constants';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  background-color: inherit;
+  color: inherit;
+}
+
+.border {
+  border-radius: 3px;
+  border: 2px solid $border-color;
+
+  & + .border {
+    margin-top: 0.3rem;
+  }
+}
+
+html {
+  font-size: 62.5%;
+  background-color: $background-color;
+  color: $font-color;
+}
+
+.inverted {
+  filter: invert(90%);
+}
+
+body {
+  padding: 0.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
