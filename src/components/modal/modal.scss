@@ -1,3 +1,5 @@
+@import '../../constants.scss';
+
 .modal {
   position: absolute;
   margin: auto;
@@ -24,6 +26,12 @@
     position: absolute;
     bottom: 0.5rem;
     font-size: 2rem;
+
+    &:hover {
+      background-size: cover;
+      background-color: $hover-color;
+      cursor: pointer;
+    }
   }
 }
 

@@ -1,11 +1,15 @@
+@import 'constants';
+
 * {
   box-sizing: border-box;
   margin: 0;
+  background-color: inherit;
+  color: inherit;
 }
 
 .border {
   border-radius: 3px;
-  border: 2px solid black;
+  border: 2px solid $border-color;
 
   & + .border {
     margin-top: 0.3rem;
@@ -14,6 +18,12 @@
 
 html {
   font-size: 62.5%;
+  background-color: $background-color;
+  color: $font-color;
+}
+
+.inverted {
+  filter: invert(90%);
 }
 
 body {

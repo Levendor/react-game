@@ -305,6 +305,8 @@ export default class App extends Component<Props, State> {
     this.setState({
       themeValue: value,
     })
+
+    document.querySelector('html')?.classList.toggle('inverted');
   }
 
   openChangeUser = () => {

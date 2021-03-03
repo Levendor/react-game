@@ -1,14 +1,16 @@
+@import '../../constants.scss';
+
 .cell {
   display: flex;
   width: 4rem;
   height: 4rem;
-  background-color: #fff;
+  background-color: $background-color;
   justify-content: center;
   align-items: center;
   font-size: 3rem;
 
   &:hover {
-    background-color: #ddd;
+    background-color: $hover-color;
     cursor: pointer;
   }
 }
@@ -90,9 +92,9 @@
 }
 
 .top-line-cell + .top-line-cell {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid $border-color;
 }
 
 .left-line-cell {
-  border-right: 1px solid black;
+  border-right: 1px solid $border-color;
 }
