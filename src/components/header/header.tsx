@@ -32,6 +32,11 @@ export default class Header extends Component<Props> {
             />
             })
           }
+        <HeaderButton title="Fullscreen"
+                      onButtonClick={() => callbacks[callbacks.length - 1]('Fullscreen')}
+                      faIcon={SYMBOLS.FULLSCREEN}
+                      key="Fullscreen"
+        />
         </nav>
       </header>
     );

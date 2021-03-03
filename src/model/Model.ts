@@ -82,6 +82,7 @@ export default class Model {
       player1Field: new Field(),
       player2Field: new Field(),
     }
+    this.saveGame();
   }
 
   newGame = () => {

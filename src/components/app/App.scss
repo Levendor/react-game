@@ -40,4 +40,12 @@
                          'foe'
                          'friend';
   }
+
+  &:fullscreen {
+    height: 100vw;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 45rem 10rem 45rem;
+    padding-top: 15%;
+  }
 }

@@ -201,7 +201,7 @@ export default class App extends Component<Props, State> {
   }
 
   enemyStrike() {
-    this.isWinGameOrRound(true);
+    this.isWinGameOrRound(false);
 
     setTimeout(() => {
       this.playSound(this.shotSounds);
@@ -373,6 +373,15 @@ export default class App extends Component<Props, State> {
     })
   }
 
+  goFullScreen = () => {
+    const container = document.getElementById('wrapper');
+    container?.requestFullscreen();
+  }
+
+  restoreFullScreen = () => {
+    document.exitFullscreen().catch(err => Promise.resolve(err))
+  }
+
   render() {
     const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue, isPlay, popupText } = this.state;
     const appClass = disabledApp ? "disabled" : "";
@@ -409,11 +418,12 @@ export default class App extends Component<Props, State> {
             () => {this.newGame(); this.autoGame(0);},
             this.openChangeUser,
             this.toggleMusic,
+            this.goFullScreen,
           ]} />
         <ScoreLine bestOf={currentBestOf}
                    score={score}
                    players={[user1Name, user2Name]}/>
-        <div className={`battlefield-container border ${fieldClass}`}>
+        <div id="wrapper" className={`battlefield-container border ${fieldClass}`}>
           <Battlefield side="friend"
                        field={player1Field} />
           <MovesCounter player1Counter={player1Moves}
