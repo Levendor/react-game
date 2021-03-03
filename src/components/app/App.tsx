@@ -14,7 +14,6 @@ import Model from '../../model/Model';
 import Field from '../../model/Field';
 
 import './App.scss';
-import Music from '../music';
 
 interface Props {
   model: Model;
@@ -40,6 +39,8 @@ interface State {
   disabledApp: boolean;
   disabledField: boolean;
   isAutoGame: boolean;
+  musicStarted: boolean;
+  isPlay: boolean;
 }
 
 export default class App extends Component<Props, State> {
@@ -47,7 +48,7 @@ export default class App extends Component<Props, State> {
   hitSounds: string[];
   missSounds: string[];
   shotSounds: string[];
-  music: string;
+  music: HTMLAudioElement;
 
   constructor(props: Props) {
     super(props);
@@ -71,16 +72,16 @@ export default class App extends Component<Props, State> {
       disabledApp: false,
       disabledField: false,
       isAutoGame: false,
+      musicStarted: false,
+      isPlay: false,
     }
     this.crushSounds = [SOUNDS.crush1];
     this.hitSounds = [SOUNDS.hit1, SOUNDS.hit2];
     this.missSounds = [SOUNDS.miss1, SOUNDS.miss2, SOUNDS.miss3, SOUNDS.miss4];
     this.shotSounds = [SOUNDS.shot1, SOUNDS.shot2, SOUNDS.shot3, SOUNDS.shot4, SOUNDS.shot5];
-    this.music = SOUNDS.music;
-    const music = new Audio(this.music);
-    music.volume = this.state.musicValue;
-    music.loop = true;
-    music.play();
+    this.music = new Audio(SOUNDS.music);
+    this.music.volume = this.state.musicValue;
+    this.music.loop = true;
   }
 
   newGame = (userName?: string) => {
@@ -297,6 +298,7 @@ export default class App extends Component<Props, State> {
     this.setState({
       musicValue: value,
     })
+    this.music.volume = value;
   }
 
   onThemeChange = (value: number) => {
@@ -342,18 +344,37 @@ export default class App extends Component<Props, State> {
     sound.play();
   }
 
+  toggleMusic = () => {
+    if (this.state.musicStarted) {
+      if (this.state.isPlay) {
+        this.music.pause()
+        this.setState({
+          isPlay: false,
+        })
+      } else {
+        this.music.play()
+        this.setState({
+          isPlay: true,
+        })
+      }
+    } else {
+      this.setState({
+        isPlay: true,
+        musicStarted: true,
+      })
+      this.music.play();
+    }
+  }
+
   render() {
-    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue } = this.state;
+    const { user1Name, player1GamesTotal, player1GamesWon, user2Name, disabledApp, disabledField, isAutoGame, player1Moves, player2Moves, player1Field, player2Field, bestOf, currentBestOf, score, modalWindow, difficultyLevel, audioValue, musicValue, themeValue, isPlay, } = this.state;
     const appClass = disabledApp ? "disabled" : "";
     const fieldClass = isAutoGame || disabledField ? "disabled" : "";
     const player1Title = isAutoGame ? "компа 1:" : "твоих:";
     const player2Title = isAutoGame ? "компа 2:" : "компа:";
 
-    const music = this.music;
-
     return (
       <div className={`app ${appClass}`}>
-        <Music musicSrc={music} volume={musicValue} />
         <Modal modalWindow={modalWindow}
                onCloseButtonClick={this.closeModal}
                userName={user1Name}
@@ -365,18 +386,21 @@ export default class App extends Component<Props, State> {
                onBestOfChange={this.onBestOfChange}
                audioValue={audioValue}
                onAudioChange={this.onAudioChange}
-               musicValue={musicValue}
+               musicRenderValue={musicValue}
+               musicValue={this.music.volume}
                onMusicChange={this.onMusicChange}
                themeValue={themeValue}
                onThemeChange={this.onThemeChange}
                userList={this.getUserList()}
                onUserButtonClick={this.newUser} />;
-        <Header callbacks={[
+        <Header isPlay={isPlay}
+                callbacks={[
             this.newGame,
             this.openStatistics,
             this.openSettings,
             () => {this.newGame(); this.autoGame(0);},
             this.openChangeUser,
+            this.toggleMusic,
           ]} />
         <ScoreLine bestOf={currentBestOf}
                    score={score}

@@ -20,6 +20,7 @@ interface Props {
   onBestOfChange: Function;
   audioValue: number;
   onAudioChange: Function;
+  musicRenderValue: number;
   musicValue: number;
   onMusicChange: Function;
   themeValue: number;
@@ -31,7 +32,7 @@ interface Props {
 export default class Modal extends Component<Props> {
 
   getComponent = (component: string) => {
-    const { userName, gamesTotal, gamesWon, onDifficultyChange, difficultLevel, bestOfValue, onBestOfChange, audioValue, onAudioChange, musicValue, onMusicChange, themeValue, onThemeChange, userList, onUserButtonClick } = this.props;
+    const { userName, gamesTotal, gamesWon, onDifficultyChange, difficultLevel, bestOfValue, onBestOfChange, audioValue, onAudioChange, musicRenderValue,musicValue, onMusicChange, themeValue, onThemeChange, userList, onUserButtonClick } = this.props;
     switch(component) {
       case 'Statistics':
         return <Statistics userName={userName}
@@ -44,6 +45,7 @@ export default class Modal extends Component<Props> {
                          onBestOfChange={onBestOfChange}
                          audioValue={audioValue}
                          onAudioChange={onAudioChange}
+                         musicRenderValue={musicRenderValue}
                          musicValue={musicValue}
                          onMusicChange={onMusicChange}
                          themeValue={themeValue}

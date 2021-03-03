@@ -10,7 +10,7 @@ const DEFAULT_PLAYER2_NAME: string = 'computer';
 const DEFAULT_DIFFICULTY_LEVEL = 2;
 const DEFAULT_BEST_OF: number = 2;
 const DEFAULT_AUDIO_VALUE = 1;
-const DEFAULT_MUSIC_VALUE = 1;
+const DEFAULT_MUSIC_VALUE = 0.1;
 const DEFAULT_THEME_VALUE = 1;
 const INITIAL_SCORE: number[] = [0, 0];
 const FIELD_SIZE: number = 10;
@@ -52,6 +52,7 @@ const HEADER_BUTTONS_TITLES: string[] = [
   'Settings',
   'Autoplay',
   'Change user',
+  'Music',
 ]
 
 export {

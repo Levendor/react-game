@@ -9,6 +9,7 @@ interface Props {
   onBestOfChange: Function;
   audioValue: number;
   onAudioChange: Function;
+  musicRenderValue: number;
   musicValue: number;
   onMusicChange: Function;
   themeValue: number;
@@ -38,6 +39,20 @@ export default class Settings extends Component<Props> {
       case '0.5':
         return 'Quiet';
       case '1':
+        return 'Normal';
+      default:
+        return '';
+    }
+  }
+
+  getMusicLabel = (value: number) => {
+    const str = `${value}`;
+    switch(str) {
+      case '0':
+        return 'Mute';
+      case '0.05':
+        return 'Quiet';
+      case '0.1':
         return 'Normal';
       default:
         return '';
@@ -77,10 +92,10 @@ export default class Settings extends Component<Props> {
   }
 
   render() {
-    const { difficultyValue, bestOfValue, audioValue, musicValue, themeValue } = this.props;
+    const { difficultyValue, bestOfValue, audioValue, musicRenderValue, themeValue } = this.props;
     const difficultyLabel = this.getDifficultyLabel(difficultyValue)
     const audioLabel = this.getAudioLabel(audioValue);
-    const musicLabel = this.getAudioLabel(musicValue);
+    const musicLabel = this.getMusicLabel(musicRenderValue);
     const themeLabel = this.getThemeLabel(themeValue);
     return (
       <div className="settings-container">
@@ -151,16 +166,16 @@ export default class Settings extends Component<Props> {
           </h3>
           <input id="music"
                 type="range" 
-                value={musicValue}
+                value={musicRenderValue}
                 onChange={this.onMusicChange}
                 min="0"
-                max="1"
-                step="0.5"
+                max="0.1"
+                step="0.05"
                 list="musicList" />
           <datalist id="musicList">
             <option value="0"/>
-            <option value="0.5"/>
-            <option value="1"/>
+            <option value="0.05"/>
+            <option value="0.1"/>
           </datalist>
         </div>
 

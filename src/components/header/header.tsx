@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { v4 } from 'uuid';
 import { HEADER_BUTTONS_TITLES } from '../../model/constants';
 import SYMBOLS from '../../model/symbols';
 import HeaderButton from '../header-button';
@@ -7,11 +6,12 @@ import './header.scss';
 
 interface Props {
   callbacks: Function[];
+  isPlay: boolean,
 }
 
 export default class Header extends Component<Props> {
   render() {
-    const { callbacks } = this.props;
+    const { callbacks, isPlay } = this.props;
     const symbols = SYMBOLS.HEADER_BUTTONS_SYMBOLS;
     const titles = HEADER_BUTTONS_TITLES;
     return (
@@ -20,10 +20,15 @@ export default class Header extends Component<Props> {
         <nav className="header_navbar">
           {
             titles.map((title, index) => {
+              let icon;
+              if (title === "Music") {
+                if (isPlay) icon = SYMBOLS.STOP;
+                else icon = SYMBOLS.MUSIC;
+              } else icon = symbols[index];
               return <HeaderButton title={title}
                                    onButtonClick={() => callbacks[index](title)}
-                                   faIcon={symbols[index]}
-                                   key={v4()}
+                                   faIcon={icon}
+                                   key={title}
             />
             })
           }
